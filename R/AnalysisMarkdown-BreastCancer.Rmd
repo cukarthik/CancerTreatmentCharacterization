@@ -1,0 +1,159 @@
+---
+title: "Breast Cancer Analyses"
+author: "Karthik Natarajan and Thomas Falconer"
+date: "8/31/2021"
+output: html_document
+
+params:
+ cohortDatabaseSchema: x
+ cohortId: 1775946
+ connection: x
+ minCellCount: 5
+ outputFolder: x
+
+---
+
+```{r}
+library(devtools)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(ggrepel)
+library(lubridate)
+library(forcats)
+library(RColorBrewer)
+```
+***
+**STEP 1:** Bringing In the data set and establishing the vectors used in the analyses
+***
+```{r}
+outputFolder <- params$outputFolder
+minCellCount <- params$minCellCount
+cohortId <- params$cohortId
+time_window_for_interventions <- 365
+
+cancerCohortDataTable <- getCancerDataSet(params$cohortDatabaseSchema, params$cohortId, params$connection)
+```
+
+
+```{r}
+  cancerSpecificVectors <- getVectorsForSpecificCancer(cohortId)
+  #function to produce interventions per patient
+  augmentedCancerDataSet <- augmentCancerDataSet(cancerCohortDataTable = cancerCohortDataTable,
+                                               interventionsVector = cancerSpecificVectors$interventions,
+                                               drugVector = cancerSpecificVectors$drugs_vector,
+                                               timeWindowForInterventions = time_window_for_interventions)
+
+  #clear out previous run data
+  if (file.exists(outputFolder)) {
+    unlink(outputFolder, recursive = TRUE)
+  } else {
+    dir.create(outputFolder, recursive = TRUE)
+  }
+```
+```{r message=FALSE, warning=FALSE, include=FALSE}
+plot <- examineInterventionsPerYear(augmentedCancerDataSet, outputFolder, minCellCount)
+plot
+```
+
+```{r}
+plot <- examineDxPerYear(augmentedCancerDataSet, outputFolder, minCellCount)
+plot
+```
+
+
+```{r}
+plot <- examinePercentAgeAtDx(augmentedCancerDataSet, outputFolder, minCellCount)
+plot
+```
+
+```{r}
+plot <- examineAvgNumDrugsByTreatmentClass(augmentedCancerDataSet, outputFolder, minCellCount)
+plot
+```
+
+
+```
+## All the below plots are based on the index date of each patient and the earliest drug intervention for irrespective of the year the drug (intervention) was taken.
+```
+
+```{r}
+#plot 11a
+#calculating the percent of patients who receive adjuvant Endocrine therapy, by year
+adjuvant_endrocrine_records <- cancerCohortDataTable %>%
+    filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$hr_positive_drugs) %>%
+    distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+    arrange(dx_year, person_id, intervention_date) %>%
+    group_by(person_id) %>%
+    slice(1)
+plot <- examinePercentEndocrineForAdjuvantTherapy(adjuvant_endrocrine_records, outputFolder, minCellCount)
+plot
+```
+
+
+```{r}
+#plot 11a-2-neoadjuvant
+neoadjuvant_endrocrine_records <- cancerCohortDataTable %>%
+    filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$hr_positive_drugs) %>%
+    distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+    arrange(dx_year, person_id, intervention_date) %>%
+    group_by(person_id) %>%
+    slice(1)
+plot <- examinePercentEndocrineForNeoAdjuvantTherapy(neoadjuvant_endrocrine_records, outputFolder, minCellCount)
+plot
+```
+
+```{r}
+#plot 11b
+# first line chemotherapy in the adjuvant setting
+#same chemotherapy drugs instead of Endocrine therapy
+adjuvant_chemo_records <- cancerCohortDataTable %>%
+    filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$chemo_drugs) %>%
+    distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+    arrange(dx_year, person_id, intervention_date) %>%
+    group_by(person_id) %>%
+    slice(1)
+plot <- examinePercentChemoForAdjuvantTherapy(adjuvant_chemo_records, outputFolder, minCellCount)
+plot
+```
+
+
+```{r}
+#plot 11c
+#same for chemotherapy drugs for neoadjuvant setting instead of adjuvant setting
+neoadjuvant_chemo_records <- cancerCohortDataTable %>%
+    filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$chemo_drugs) %>%
+    distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+    arrange(dx_year, person_id, intervention_date) %>%
+    group_by(person_id) %>%
+    slice(1)
+plot <- examinePercentChemoForNeoAdjuvantTherapy(neoadjuvant_chemo_records, outputFolder, minCellCount)
+plot
+```
+
+```{r}
+#Plot 14
+#AntiHER2 treatment variation in adjuvant setting
+AntiHER2s <- cancerCohortDataTable %>%
+      filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$her2_positive_drugs) %>%
+      distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+      arrange(dx_year, person_id, intervention_date) %>%
+      group_by(person_id) %>%
+      slice(1)
+
+plot <- examineAntiHER2AdjuvantTherapy(AntiHER2s, outputFolder, minCellCount)
+plot
+```
+
+```{r}
+#AntiHER2 treatment variation in adjuvant setting
+AntiHER2s <- cancerCohortDataTable %>%
+      filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$her2_positive_drugs) %>%
+      distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+      arrange(dx_year, person_id, intervention_date) %>%
+      group_by(person_id) %>%
+      slice(1)
+
+plot <- examineAntiHER2NeoAdjuvantTherapy(AntiHER2s, outputFolder, minCellCount)
+plot
+```
