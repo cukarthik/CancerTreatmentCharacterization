@@ -284,7 +284,7 @@ examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, outputFold
   #saving plot
   saveAnalysis(x = x, data = labels, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
   # saveAnalysis(x = z, data = drug_count_pp, analysisFolder = outputFolder, fileName = "drug_count_pp", minCellCount = 0)
-  saveAnalysis(x = z, data = mean_and_sd_of_drugs_by_year, analysisFolder = outputFolder, fileName = "mean_and_sd_of_drugs_by_year", minCellCount = 0)
+  # saveAnalysis(x = z, data = mean_and_sd_of_drugs_by_year, analysisFolder = outputFolder, fileName = "mean_and_sd_of_drugs_by_year", minCellCount = 0)
   saveAnalysis(x = x, data = major_classes_pp, analysisFolder = outputFolder, fileName = "major_classes_pp", minCellCount = 0)
   saveAnalysis(x = x, data = mean_and_sd_of_classes_by_year, analysisFolder = outputFolder, fileName = "mean_and_sd_of_classes_by_year", minCellCount = 0)
   saveAnalysis(x = x, data = mean_drugs_and_mean_classes_by_year, analysisFolder = outputFolder, fileName = "mean_drugs_and_mean_classes_by_year", minCellCount = 0)
