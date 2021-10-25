@@ -109,9 +109,20 @@ getVectorsForSpecificCancer <- function(cohortId) {
     return(list(interventions=interventions, endocrine_drugs=endocrine_drugs, immuno_drugs=immuno_drugs,
          chemo_drugs=chemo_drugs, targeted_drugs=targeted_drugs, drugs_vector=c(endocrine_drugs, chemo_drugs, immuno_drugs, targeted_drugs)))
   } else if (cohortId == 1775949) {
-    lung_interventions_vector <- c("Total Lobectomy", "Radiotherapy", "Wedge Resection", "Lobectomy", "Pneumonectomy")
-    cancerAntineoplastics <- c('Chemotherapy', 'Immunotherapy')
-    return(list(interventions=lung_interventions_vector, drugs_vector=cancerAntineoplastics))
+    #local intervention
+    interventions <- c("Total Lobectomy", "Radiotherapy", "Wedge Resection", "Lobectomy", "Pneumonectomy", "Bilobectomy")
+
+    #drug vectors
+    chemo_drugs <- c('Docetaxel', 'Carboplatin', 'Cisplatin', 'Oxaliplatin', 'Gemcitabine', 'Gemcitabine hydrochloride', 'Etoposide', 'Paclitaxel', 'Vinorelbine', 'Vinorelbine tartrate', 'Pemetrexed', 'Pemetrexed disodium')
+    checkpoint_inhibitors <- c('Nivolumab', 'Pembrolizumab', 'Atezolizumab', 'Ipilimumab', 'Durvalumab')
+
+    VEGF_drugs <- c('Bevacizumab', 'Bevacizumab-awwb', 'Bevacizumab-bvzr', 'Ramucirumab') #, 'Trastuzumab', 'Nintedanib')
+    EGFR_positive_drugs <- c('Osimertinib', 'Erlotinib', 'Erlotinib hydrochloride', 'Gefitinib', 'Afatinib')
+    ALK_positive_drugs <- c('Crizotinib', 'Ceritinib', 'Alectinib', 'ALECTINIB HYDROCHLORIDE', 'Brigatinib')
+    KRAS_positive_drugs <- c('Sotorasib', 'Adagrasib') #Adagrasib approved 6/2021
+    return(list(interventions=interventions, chemo_drugs=chemo_drugs, checkpoint_inhibitors=checkpoint_inhibitors,
+                vegf_drugs=VEGF_drugs, egfr_positive_drugs=EGFR_positive_drugs, alk_positive_drugs=ALK_positive_drugs, kras_positive_drugs=KRAS_positive_drugs,
+                drugs_vector=c(chemo_drugs, checkpoint_inhibitors, VEGF_drugs, EGFR_positive_drugs, ALK_positive_drugs, KRAS_positive_drugs)))
   }
   else return(NULL)
 

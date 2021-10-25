@@ -40,7 +40,7 @@ where ca.ancestor_concept_id in (4234745, 45887822) --'total lobectomy of lung'
       ca.descendant_concept_id not in (
             select distinct ca.descendant_concept_id
             from @vocabulary_database_schema.concept_ancestor ca (nolock)
-            where ca.ancestor_concept_id = 45890571 --Removal of lung, other than pneumonectomy
+            where ca.ancestor_concept_id in (45890571, 4067713) --Removal of lung, other than pneumonectomy, Bilobectomy of lung
         )
 ;
 
@@ -59,7 +59,7 @@ and
           select distinct c.concept_id
             from @vocabulary_database_schema.concept_ancestor ca (nolock)
             join @vocabulary_database_schema.concept c (nolock)  on ca.descendant_concept_id=c.concept_id
-            where ca.ancestor_concept_id in (4234745, 45887822) --'total lobectomy of lung'
+            where ca.ancestor_concept_id in (4234745, 45887822, 4067713) --'total lobectomy of lung', 'Bilobectomy of lung'
               and
                   ca.descendant_concept_id not in (
                         select distinct ca.descendant_concept_id
@@ -67,6 +67,18 @@ and
                         where ca.ancestor_concept_id = 45890571 --Removal of lung, other than pneumonectomy
               )
         )
+order by procedure_name
+;
+
+--Bilobectomy
+INSERT INTO #procedure_codes
+select
+c.concept_id as procedure_concept_id
+, c.concept_name as procedure_name
+, 'Bilobectomy' as modality
+from @vocabulary_database_schema.concept c
+join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
+where ca.ancestor_concept_id = 4067713 --'Bilobectomy of lung'
 order by procedure_name
 ;
 
