@@ -5,10 +5,10 @@
 \title{Execute the cohort diagnostics}
 \usage{
 runCohortDiagnostics(
-  connectionDetails,
+  connection,
   package,
   cdmDatabaseSchema,
-  cohortDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema,
   cohortTable = "cohort",
   oracleTempSchema = cohortDatabaseSchema,
   outputFolder,
@@ -28,10 +28,6 @@ runCohortDiagnostics(
 )
 }
 \arguments{
-\item{connectionDetails}{An object of type \code{connectionDetails} as created using the
-\code{\link[DatabaseConnector]{createConnectionDetails}} function in the
-DatabaseConnector package.}
-
 \item{cdmDatabaseSchema}{Schema name where your patient-level data in OMOP CDM format resides.
 Note that for SQL Server, this should include both the database and
 schema name, for example 'cdm_data.dbo'.}
@@ -79,6 +75,10 @@ Synthetic Public Use Files (SynPUFs)').}
 
 \item{minCellCount}{The minimum number of subjects contributing to a count before it can be included 
 in packaged results.}
+
+\item{connectionDetails}{An object of type \code{connectionDetails} as created using the
+\code{\link[DatabaseConnector]{createConnectionDetails}} function in the
+DatabaseConnector package.}
 
 \item{createCohorts}{Create the cohortTable table with the exposure and outcome cohorts?}
 }

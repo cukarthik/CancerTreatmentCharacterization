@@ -7,17 +7,22 @@
 execute(
   connectionDetails,
   cdmDatabaseSchema,
-  cohortDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema = cohortDatabaseSchema,
   cohortTable = "cancer_cohorts",
   oracleTempSchema = cohortDatabaseSchema,
   outputFolder,
   databaseId = "Unknown",
   databaseName = "Unknown",
   databaseDescription = "Unknown",
+  reloadData = TRUE,
   createCohorts = TRUE,
   runAnalyses = TRUE,
+  buildDataSet = TRUE,
+  runOhdsiCharacterization = TRUE,
+  runTreatmentAnalysis = TRUE,
   runDiagnostics = TRUE,
   packageResults = TRUE,
+  renderMarkdown = FALSE,
   maxCores = 4,
   minCellCount = 5
 )
