@@ -71,9 +71,6 @@
 #' }
 #'
 #' @export
-#'
-#' ToDo: packages to install: ggplot2, ggrepel, dplyr, readr, sqldf, tidyr, hash
-#'
 execute <- function(connectionDetails,
                     cdmDatabaseSchema,
                     cohortDatabaseSchema = cohortDatabaseSchema,
