@@ -268,8 +268,9 @@ examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, outputFold
 
   file <- "mean_and_sd_of_drugs_and_classes_by_year"
 
-  #first create an object that stores just 2020 values
-  labels <- mean_drugs_and_mean_classes_by_year %>% filter(dx_year == '2020')
+  #first create an object that stores just one year of values for in-graph labeling of lines
+labels <- mean_drugs_and_mean_classes_by_year %>% filter(!is.na(dx_year)) %>% slice(1)
+  
   #ToDo: is this plot needed?
   x <- ggplot(data = mean_drugs_and_mean_classes_by_year, aes(x = dx_year)) +
     geom_line(aes(y = average_number_of_drugs, group = 1), color = 'red') +
