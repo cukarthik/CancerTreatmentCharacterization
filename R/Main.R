@@ -194,18 +194,6 @@ execute <- function(connectionDetails,
         else
           datasetName <- getCancerDataSetName(cohortId = filterCohorts$cohortDefinitionId[i])
 
-        if (runOhdsiCharacterization) {
-          ParallelLogger::logInfo(paste("Running Basic OHDSI Cohort Characterization for", filterCohorts$cohortName[i]))
-          runBasicCohortCharacterization(connection,
-                                         cdmDatabaseSchema,
-                                         cohortDatabaseSchema,
-                                         cohortTable,
-                                         oracleTempSchema,
-                                         cohortId = filterCohorts$cohortDefinitionId[i],
-                                         cancerResultsOutputFolder,
-                                         minCellCount)
-        }
-
         if (runTreatmentAnalysis) {
           if (filterCohorts$cohortDefinitionId[i] %in%  c(1775946, 1775947)) {
             ParallelLogger::logInfo(paste("Running Cohort Treatment Characterization for", filterCohorts$cohortName[i]))
@@ -230,6 +218,18 @@ execute <- function(connectionDetails,
                                          minCellCount)
             }
           }
+        }
+
+        if (runOhdsiCharacterization) {
+          ParallelLogger::logInfo(paste("Running Basic OHDSI Cohort Characterization for", filterCohorts$cohortName[i]))
+          runBasicCohortCharacterization(connection,
+                                         cdmDatabaseSchema,
+                                         cohortDatabaseSchema,
+                                         cohortTable,
+                                         oracleTempSchema,
+                                         cohortId = filterCohorts$cohortDefinitionId[i],
+                                         cancerResultsOutputFolder,
+                                         minCellCount)
         }
 
         ParallelLogger::logInfo("Calculating cohort inclusion per year...")
