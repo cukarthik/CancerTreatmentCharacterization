@@ -46,6 +46,20 @@ Run Study
     install.packages("readr")
     install.packages("sqldf")
     install.packages("tidyr")
+    install.packages("rmarkdown")
+   
+   library("SqlRender")
+   library("DatabaseConnector")
+   library("OhdsiSharing")
+   library("FeatureExtraction")
+   library("CohortMethod")
+   library("ggplot2")
+   library("ggrepel")
+   library("dplyr")
+   library("readr")
+   library("sqldf")
+   library("tidyr")
+   library("rmarkdown")
     ```
 
     If you experience problems on Windows where rJava can't find Java, one solution may be to add `"--no-multiarch"` to each `install_github` call, for example these are two ways to ignore the i386 architecture:
