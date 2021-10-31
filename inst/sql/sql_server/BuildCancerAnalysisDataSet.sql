@@ -320,7 +320,7 @@ select nci.*
      , p.month_of_birth
      , p.day_of_birth
      , p.birth_datetime
-     , datediff(year, birth_datetime, cohort_start_date) as age_at_diagnosis
+     , datediff(year, year_of_birth, cohort_start_date) as age_at_diagnosis
      , c.concept_name                                    as race
      , c2.concept_name                                   as ethnicity
      , loc.location_id
