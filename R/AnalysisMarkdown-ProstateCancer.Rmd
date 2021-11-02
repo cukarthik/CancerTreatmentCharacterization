@@ -13,7 +13,7 @@ params:
 
 ---
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(devtools)
 library(dplyr)
 library(ggplot2)
@@ -24,17 +24,25 @@ library(forcats)
 library(RColorBrewer)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 outputFolder <- params$outputFolder
 minCellCount <- params$minCellCount
 cohortId <- params$cohortId
 time_window_for_interventions <- 365
 
 cancerCohortDataTable <- getCancerDataSet(params$cohortDatabaseSchema, params$cohortId, params$connection)
+
+writeLines(paste("outputFolder = ", outputFolder, "\n",
+      "minCellCount = ", minCellCount, "\n",
+      "cohortId = ", cohortId, "\n",
+       "time_window_for_interventions = ", time_window_for_interventions))
+
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
   cancerSpecificVectors <- getVectorsForSpecificCancer(cohortId)
+  cancerSpecificVectors
+
   #function to produce interventions per patient
   augmentedCancerDataSet <- augmentCancerDataSet(cancerCohortDataTable = cancerCohortDataTable,
                                                interventionsVector = cancerSpecificVectors$interventions,
@@ -48,26 +56,26 @@ cancerCohortDataTable <- getCancerDataSet(params$cohortDatabaseSchema, params$co
     dir.create(outputFolder, recursive = TRUE)
   }
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 # Percent distribution of intervention types, by year
 plot <- examineInterventionsPerYear(augmentedCancerDataSet, outputFolder, minCellCount)
 plot
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #plot 1
 #counting distinct diagnoses by year
 plot <- examineDxPerYear(augmentedCancerDataSet, outputFolder, minCellCount)
 plot
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #plot 2
 #average age at diagnosis by year
 plot <- examineAvgAgeAtDx(augmentedCancerDataSet, outputFolder, minCellCount)
 plot
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 #average drug classes by year
 plot <- examineAvgNumDrugsByTreatmentClass(augmentedCancerDataSet, outputFolder, minCellCount)
 plot
@@ -76,7 +84,7 @@ plot
 ## All the below plots are based on the index date of each patient and the earliest drug intervention for irrespective of the year the drug (intervention) was taken.
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #plot 11 - ADT plot
   #Endocrine distribution in the adjuvant setting
   #selecting for patients who are labeled as having adjuvant
@@ -90,7 +98,7 @@ plot <- examinePercentEndocrineForAdjuvantTherapy(adjuvant_endrocrine_records, o
 plot
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #Endocrine distribution in the neoadjuvant setting
 neoadjuvant_endrocrine_records <- cancerCohortDataTable %>%
   filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$endocrine_drugs) %>%
@@ -101,7 +109,7 @@ neoadjuvant_endrocrine_records <- cancerCohortDataTable %>%
 plot <- examinePercentEndocrineForNeoAdjuvantTherapy(neoadjuvant_endrocrine_records, outputFolder, minCellCount)
 plot
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 #first line chemotherapy in the adjuvant setting
 adjuvant_chemo_records <- cancerCohortDataTable %>%
   filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$chemo_drugs) %>%
@@ -112,7 +120,7 @@ adjuvant_chemo_records <- cancerCohortDataTable %>%
 plot <- examinePercentChemoForAdjuvantTherapy(adjuvant_chemo_records, outputFolder, minCellCount)
 plot
 ```
-```{r}
+```{r message=FALSE, warning=FALSE}
 #first line chemotherapy in the neoadjuvant setting
 neoadjuvant_chemo_records <- cancerCohortDataTable %>%
   filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$chemo_drugs) %>%
