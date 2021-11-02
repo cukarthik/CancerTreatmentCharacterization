@@ -36,7 +36,6 @@ writeLines(paste("outputFolder = ", outputFolder, "\n",
       "minCellCount = ", minCellCount, "\n",
       "cohortId = ", cohortId, "\n",
        "time_window_for_interventions = ", time_window_for_interventions))
-
 ```
 
 ```{r message=FALSE, warning=FALSE}
