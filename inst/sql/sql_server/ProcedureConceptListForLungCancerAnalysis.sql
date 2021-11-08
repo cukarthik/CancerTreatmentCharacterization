@@ -36,16 +36,10 @@ select distinct c.concept_id as procedure_concept_id
 from @vocabulary_database_schema.concept_ancestor ca (nolock)
 join @vocabulary_database_schema.concept c (nolock)  on ca.descendant_concept_id=c.concept_id
 where ca.ancestor_concept_id in (4234745, 45887822) --'total lobectomy of lung'
-  and
-      ca.descendant_concept_id not in (
-            select distinct ca.descendant_concept_id
-            from @vocabulary_database_schema.concept_ancestor ca (nolock)
-            where ca.ancestor_concept_id = 45890571 --Removal of lung, other than pneumonectomy
-        )
 ;
 
---ToDo: need to re-evaluate this concept set
---partial lobectomy codes
+
+--lobectomy codes
 INSERT INTO #procedure_codes
 select
 c.concept_id as procedure_concept_id
@@ -60,13 +54,9 @@ and
             from @vocabulary_database_schema.concept_ancestor ca (nolock)
             join @vocabulary_database_schema.concept c (nolock)  on ca.descendant_concept_id=c.concept_id
             where ca.ancestor_concept_id in (4234745, 45887822) --'total lobectomy of lung'
-              and
-                  ca.descendant_concept_id not in (
-                        select distinct ca.descendant_concept_id
-                        from @vocabulary_database_schema.concept_ancestor ca (nolock)
-                        where ca.ancestor_concept_id = 45890571 --Removal of lung, other than pneumonectomy
-              )
         )
+and ca.descendant_concept_id != 2721091 --excluding Donor lobectomy (lung) for transplantation, living donor
+and ca.descendant_concept_id != 3185128 --excluding VATS wedge resection of right upper lobe of lung
 order by procedure_name
 ;
 
@@ -79,6 +69,7 @@ c.concept_id as procedure_concept_id
 from @vocabulary_database_schema.concept c
 join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
 where ca.ancestor_concept_id in (4172438, 1014125)  --'Total pneumonectomy'  'Removal of lung, pneumonectomy'
+and ca.descendant_concept_id != 2721091 --excluding Donor lobectomy (lung) for transplantation, living donor
 order by procedure_name
 ;
 
