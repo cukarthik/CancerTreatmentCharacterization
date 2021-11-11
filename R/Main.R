@@ -319,7 +319,20 @@ createAndLoadFileToTable <- function(pathToCsv, sep = ",", connection, cohortDat
 
   for (i in d) {
     # values <- paste0(apply(head(i), 1, function(x) paste0("('", paste0(x, collapse = "', '"), "')")), collapse = ", ")
-    values <- paste0(apply(i, 1, function(x) paste0("('", paste0(x, collapse = "', '"), "')")), collapse = ", ")
+
+    # if (dbms!='bigquery')
+    #   values <- paste0(apply(i, 1, function(x) paste0("('", paste0(x, collapse = "', '"), "')")), collapse = ", ")
+    # else {
+      # for (i in d) {
+
+        # below statement create the one-liner used
+        # v1 <- apply(i, 1, function(x) ifelse(is.na(strtoi(x)), paste0("'", x,"'"), paste0(x)))
+        # v2 <- apply(v1, 2, function(x) paste(x, collapse = ", "))
+        # values <- paste0("(", v2, ")", collapse=",")
+        values <- paste0("(", apply(apply(i, 1, function(x) ifelse(is.na(strtoi(x)), paste0("'", x,"'"), paste0(x))), 2, function(x) paste(x, collapse = ", ")), ")", collapse=",")
+      # }
+
+    # }
     sql <- paste0("INSERT INTO @target_database_schema.@table_name VALUES ", values, ";")
     renderedSql <- render(sql = sql, target_database_schema = cohortDatabaseSchema, table_name = tableName)
     insertSql <- translate(renderedSql, targetDialect = targetDialect)
