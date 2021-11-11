@@ -11,7 +11,7 @@ CREATE TABLE #procedure_codes
     procedure_concept_id   INT,
     procedure_name	       VARCHAR(255),
 	modality			   VARCHAR(100)
-)
+);
  -----1. RADIOTHERAPY CODES--------------
 --(this insertion into #procedure_codes looks different than the rest of the insertions b/c grabbing high level radiation code leads to observation only codes, which won't and don't help in the PO table. 
 
