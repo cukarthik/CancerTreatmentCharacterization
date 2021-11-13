@@ -57,7 +57,7 @@ CREATE TABLE @target_database_schema.temp_nci_cancer_treatments
     quantity FLOAT,
     dose_unit_source_value varchar(50),
     drug_source_value varchar(500)
-)
+);
 
 ------------------------------
 -----CODE LIST PREPARATION----
@@ -410,7 +410,7 @@ LEFT JOIN @vocabulary_database_schema.concept_relationship cr on de.concept_id =
 LEFT JOIN @vocabulary_database_schema.concept c2 on cr.concept_id_2 = c2.concept_id
 LEFT JOIN @vocabulary_database_schema.concept c3 on d.route_concept_id = c3.concept_id
 LEFT JOIN @target_database_schema.@ingredient_routes_table r on r.concept_id = d.drug_concept_id
-
+;
 
 IF OBJECT_ID('@target_database_schema.temp_nci_cancer_treatments', 'U') IS NOT NULL
     DROP TABLE @target_database_schema.temp_nci_cancer_treatments;
