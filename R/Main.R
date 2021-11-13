@@ -204,6 +204,8 @@ execute <- function(connectionDetails,
                 , output_dir = cancerResultsOutputFolder
                 , params = list(
                     cohortId = filterCohorts$cohortDefinitionId[i]
+                  , cohortName = datasetName
+                  , databaseId = databaseId
                   , cohortDatabaseSchema = cohortDatabaseSchema
                   , minCellCount = minCellCount
                   , outputFolder = cancerResultsOutputFolder
@@ -214,6 +216,7 @@ execute <- function(connectionDetails,
               runCancerTreatmentAnalysis(connection,
                                          cohortDatabaseSchema,
                                          cohortId = filterCohorts$cohortDefinitionId[i],
+                                         databaseId,
                                          cancerResultsOutputFolder,
                                          minCellCount)
             }
