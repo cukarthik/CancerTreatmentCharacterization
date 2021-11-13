@@ -15,7 +15,7 @@
 # limitations under the License.
 
 #' Execute breast cancer specific characterization analysis
-breastCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, cancerSpecificVectors, outputFolder, minCellCount) {
+breastCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, cancerSpecificVectors, databaseId, outputFolder, minCellCount) {
 
   #creating a table that stores all first cancer fighting drug records for each patient
   first_drug_record <- cancerCohortDataTable %>%
@@ -67,7 +67,7 @@ breastCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, canc
     arrange(dx_year, person_id, intervention_date) %>%
     group_by(person_id) %>%
     slice(1)
-  examinePercentEndocrineForAdjuvantTherapy(adjuvant_endrocrine_records, outputFolder, minCellCount)
+  examinePercentEndocrineForAdjuvantTherapy(adjuvant_endrocrine_records, cohortName, databaseId, outputFolder, minCellCount)
  
   #Endocrine distribution in the neoadjuvant setting for each subject
   ParallelLogger::logInfo(paste("Creating plot of percent of endocrine therapy for Neoadjuvant therapy for", cohortName))
@@ -77,7 +77,7 @@ breastCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, canc
     arrange(dx_year, person_id, intervention_date) %>%
     group_by(person_id) %>%
     slice(1)
-  examinePercentEndocrineForNeoAdjuvantTherapy(neoadjuvant_endrocrine_records, outputFolder, minCellCount)
+  examinePercentEndocrineForNeoAdjuvantTherapy(neoadjuvant_endrocrine_records, cohortName, databaseId, outputFolder, minCellCount)
 
   #plot 11b
   #first line chemotherapy in the adjuvant setting for each subject
@@ -88,7 +88,7 @@ breastCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, canc
     arrange(dx_year, person_id, intervention_date) %>%
     group_by(person_id) %>%
     slice(1)
-  examinePercentChemoForAdjuvantTherapy(adjuvant_chemo_records, outputFolder, minCellCount)
+  examinePercentChemoForAdjuvantTherapy(adjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount)
 
   #plot 11c
   #first line chemotherapy in the neoadjuvant setting for each subject
@@ -99,7 +99,7 @@ breastCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, canc
     arrange(dx_year, person_id, intervention_date) %>%
     group_by(person_id) %>%
     slice(1)
-  examinePercentChemoForNeoAdjuvantTherapy(neoadjuvant_chemo_records, outputFolder, minCellCount)
+  examinePercentChemoForNeoAdjuvantTherapy(neoadjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount)
 
   #plot 12
   # ParallelLogger::logInfo(paste("Creating plot of immnunotherapy for", cohortName))
@@ -122,7 +122,7 @@ breastCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, canc
               arrange(dx_year, person_id, intervention_date) %>%
               group_by(person_id) %>%
               slice(1)
-  examineAntiHER2AdjuvantTherapy(AntiHER2s, outputFolder, minCellCount)
+  examineAntiHER2AdjuvantTherapy(AntiHER2s, cohortName, databaseId, outputFolder, minCellCount)
 
   #AntiHER2 treatment variation in neoadjuvant setting
   ParallelLogger::logInfo(paste("Creating plot of anti-HER2 for neoadjuvant therapy over time for", cohortName))
@@ -137,5 +137,5 @@ breastCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, canc
               group_by(person_id) %>%
               slice(1)
 
-  examineAntiHER2NeoAdjuvantTherapy(AntiHER2s, outputFolder, minCellCount)
+  examineAntiHER2NeoAdjuvantTherapy(AntiHER2s, cohortName, databaseId, outputFolder, minCellCount)
 }
