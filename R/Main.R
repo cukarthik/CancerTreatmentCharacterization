@@ -266,10 +266,10 @@ initializeStudy <- function(outputFolder, connection, cohortDatabaseSchema, orac
 
   if (reloadData) {
     #Load ADI data
-    # print(paste0("package: ", package))
-    # ParallelLogger::logInfo("Loading ADI Data")
-    # pathToCsv <- system.file("settings", "adi_state_data.csv", package = package)
-    # createAndLoadFileToTable(pathToCsv, sep = ",", connection, cohortDatabaseSchema, createTableFile = "CreateADITable.sql", tableName = "adi_data", targetDialect = attr(connection, "dbms"), oracleTempSchema, package)
+    print(paste0("package: ", package))
+    ParallelLogger::logInfo("Loading ADI Data")
+    pathToCsv <- system.file("settings", "US_2019_ADI_Census_Block_Group.csv", package = package)
+    createAndLoadFileToTable(pathToCsv, sep = ",", connection, cohortDatabaseSchema, createTableFile = "CreateADITable.sql", tableName = "adi_data", targetDialect = attr(connection, "dbms"), oracleTempSchema, package)
 
     #load CanMed
     ParallelLogger::logInfo("Loading CanMED Data")
