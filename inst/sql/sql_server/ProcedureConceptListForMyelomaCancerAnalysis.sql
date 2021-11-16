@@ -72,7 +72,7 @@ select c.concept_id as procedure_concept_id
 , 'PET Scan' as modality
 from @vocabulary_database_schema.concept c 
 join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
-where ca.ancestor_concept_id = 4305790 and c.concept_name not like '%myocardial%'
+where ca.ancestor_concept_id = 4305790 
 ;
 
 --Prostate Ultrasounds
