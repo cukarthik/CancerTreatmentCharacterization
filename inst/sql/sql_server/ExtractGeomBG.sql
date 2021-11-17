@@ -50,8 +50,8 @@ ADI_NATRANK VARCHAR(20)
 
 INSERT INTO @target_database_schema.@table_name
 SELECT
-  person_id,
-  cc.location_id,
+  cc.person_id,
+  l.location_id,
   cc.cohort_definition_id,
   adi.FIPS AS FIPS,
   ag.COUNTY_NAME,
@@ -75,6 +75,3 @@ ON
 INNER JOIN
   @target_database_schema.@adi_data AS adi
 ON ag.FIPS = adi.FIPS;
-
-
-
