@@ -38,7 +38,6 @@ join @vocabulary_database_schema.concept c (nolock)  on ca.descendant_concept_id
 where ca.ancestor_concept_id in (4234745, 45887822) --'total lobectomy of lung'
 ;
 
-
 --lobectomy codes
 INSERT INTO #procedure_codes
 select
@@ -90,7 +89,7 @@ INSERT INTO #procedure_codes
 select c.concept_id as procedure_concept_id
 , c.concept_name as procedure_name
 , 'Cryoablation' as modality
-from @vocabulary_database_schema.concept c 
+from @vocabulary_database_schema.concept c
 join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
 where ca.ancestor_concept_id in (4328579, 45765611, 4233443, 4332525, 2110046, 42628460, 4146273 ) --CT, fluoresence, MRI and ultrasound guided ablation, respectively
 ;
@@ -100,7 +99,7 @@ INSERT INTO #procedure_codes
 select c.concept_id as procedure_concept_id
 , c.concept_name as procedure_name
 , 'CT Scan' as modality
-from @vocabulary_database_schema.concept c 
+from @vocabulary_database_schema.concept c
 join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
 where ca.ancestor_concept_id = 4060500;
 
@@ -109,7 +108,7 @@ INSERT INTO #procedure_codes
 select c.concept_id as procedure_concept_id
 , c.concept_name as procedure_name
 , 'PET Scan' as modality
-from @vocabulary_database_schema.concept c 
+from @vocabulary_database_schema.concept c
 join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
 where ca.ancestor_concept_id = 4305790 and c.concept_name not like '%myocardial%'
 ;
@@ -119,7 +118,7 @@ INSERT INTO #procedure_codes
 select c.concept_id as procedure_concept_id
 , c.concept_name as procedure_name
 , 'Ultrasound' as modality
-from @vocabulary_database_schema.concept c 
+from @vocabulary_database_schema.concept c
 join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
 where ca.ancestor_concept_id = 4037672 and concept_name like '%lung%'
 ;
@@ -129,7 +128,7 @@ INSERT INTO #procedure_codes
 select c.concept_id as procedure_concept_id
 , c.concept_name as procedure_name
 , 'MRI' as modality
-from @vocabulary_database_schema.concept c 
+from @vocabulary_database_schema.concept c
 join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
 where ca.ancestor_concept_id = 4013636
 ;

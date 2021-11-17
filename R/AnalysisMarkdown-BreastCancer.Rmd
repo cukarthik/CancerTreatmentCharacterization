@@ -7,13 +7,15 @@ output: html_document
 params:
  cohortDatabaseSchema: x
  cohortId: 1775946
+ cohortName : breast_cancer
+ databaseId : x
  connection: x
  minCellCount: 5
  outputFolder: x
 
 ---
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(devtools)
 library(dplyr)
 library(ggplot2)
@@ -26,18 +28,28 @@ library(RColorBrewer)
 ***
 **STEP 1:** Bringing In the data set and establishing the vectors used in the analyses
 ***
-```{r}
+```{r message=FALSE, warning=FALSE}
 outputFolder <- params$outputFolder
 minCellCount <- params$minCellCount
 cohortId <- params$cohortId
+cohortName <- params$cohortName
+databaseId <- params$databaseId
 time_window_for_interventions <- 365
 
 cancerCohortDataTable <- getCancerDataSet(params$cohortDatabaseSchema, params$cohortId, params$connection)
+writeLines(paste("outputFolder = ", outputFolder, "\n",
+      "minCellCount = ", minCellCount, "\n",
+      "cohortId = ", cohortId, "\n",
+      "cohortName = ", cohortName, "\n",
+      "databaseId = ", databaseId, "\n",
+       "time_window_for_interventions = ", time_window_for_interventions))
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
   cancerSpecificVectors <- getVectorsForSpecificCancer(cohortId)
+  cancerSpecificVectors
+  
   #function to produce interventions per patient
   augmentedCancerDataSet <- augmentCancerDataSet(cancerCohortDataTable = cancerCohortDataTable,
                                                interventionsVector = cancerSpecificVectors$interventions,
@@ -51,24 +63,24 @@ cancerCohortDataTable <- getCancerDataSet(params$cohortDatabaseSchema, params$co
     dir.create(outputFolder, recursive = TRUE)
   }
 ```
-```{r message=FALSE, warning=FALSE, include=FALSE}
-plot <- examineInterventionsPerYear(augmentedCancerDataSet, outputFolder, minCellCount)
+```{r message=FALSE, warning=FALSE}
+plot <- examineInterventionsPerYear(augmentedCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
-```{r}
-plot <- examineDxPerYear(augmentedCancerDataSet, outputFolder, minCellCount)
+```{r message=FALSE, warning=FALSE}
+plot <- examineDxPerYear(augmentedCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
 
-```{r}
-plot <- examinePercentAgeAtDx(augmentedCancerDataSet, outputFolder, minCellCount)
+```{r message=FALSE, warning=FALSE}
+plot <- examinePercentAgeAtDx(augmentedCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
-```{r}
-plot <- examineAvgNumDrugsByTreatmentClass(augmentedCancerDataSet, outputFolder, minCellCount)
+```{r message=FALSE, warning=FALSE}
+plot <- examineAvgNumDrugsByTreatmentClass(augmentedCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
@@ -77,7 +89,7 @@ plot
 ## All the below plots are based on the index date of each patient and the earliest drug intervention for irrespective of the year the drug (intervention) was taken.
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #plot 11a
 #calculating the percent of patients who receive adjuvant Endocrine therapy, by year
 adjuvant_endrocrine_records <- cancerCohortDataTable %>%
@@ -86,12 +98,12 @@ adjuvant_endrocrine_records <- cancerCohortDataTable %>%
     arrange(dx_year, person_id, intervention_date) %>%
     group_by(person_id) %>%
     slice(1)
-plot <- examinePercentEndocrineForAdjuvantTherapy(adjuvant_endrocrine_records, outputFolder, minCellCount)
+plot <- examinePercentEndocrineForAdjuvantTherapy(adjuvant_endrocrine_records, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #plot 11a-2-neoadjuvant
 neoadjuvant_endrocrine_records <- cancerCohortDataTable %>%
     filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$hr_positive_drugs) %>%
@@ -99,11 +111,11 @@ neoadjuvant_endrocrine_records <- cancerCohortDataTable %>%
     arrange(dx_year, person_id, intervention_date) %>%
     group_by(person_id) %>%
     slice(1)
-plot <- examinePercentEndocrineForNeoAdjuvantTherapy(neoadjuvant_endrocrine_records, outputFolder, minCellCount)
+plot <- examinePercentEndocrineForNeoAdjuvantTherapy(neoadjuvant_endrocrine_records, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #plot 11b
 # first line chemotherapy in the adjuvant setting
 #same chemotherapy drugs instead of Endocrine therapy
@@ -113,12 +125,12 @@ adjuvant_chemo_records <- cancerCohortDataTable %>%
     arrange(dx_year, person_id, intervention_date) %>%
     group_by(person_id) %>%
     slice(1)
-plot <- examinePercentChemoForAdjuvantTherapy(adjuvant_chemo_records, outputFolder, minCellCount)
+plot <- examinePercentChemoForAdjuvantTherapy(adjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #plot 11c
 #same for chemotherapy drugs for neoadjuvant setting instead of adjuvant setting
 neoadjuvant_chemo_records <- cancerCohortDataTable %>%
@@ -127,11 +139,11 @@ neoadjuvant_chemo_records <- cancerCohortDataTable %>%
     arrange(dx_year, person_id, intervention_date) %>%
     group_by(person_id) %>%
     slice(1)
-plot <- examinePercentChemoForNeoAdjuvantTherapy(neoadjuvant_chemo_records, outputFolder, minCellCount)
+plot <- examinePercentChemoForNeoAdjuvantTherapy(neoadjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #Plot 14
 #AntiHER2 treatment variation in adjuvant setting
 AntiHER2s <- cancerCohortDataTable %>%
@@ -141,11 +153,11 @@ AntiHER2s <- cancerCohortDataTable %>%
       group_by(person_id) %>%
       slice(1)
 
-plot <- examineAntiHER2AdjuvantTherapy(AntiHER2s, outputFolder, minCellCount)
+plot <- examineAntiHER2AdjuvantTherapy(AntiHER2s, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 #AntiHER2 treatment variation in adjuvant setting
 AntiHER2s <- cancerCohortDataTable %>%
       filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$her2_positive_drugs) %>%
@@ -154,6 +166,6 @@ AntiHER2s <- cancerCohortDataTable %>%
       group_by(person_id) %>%
       slice(1)
 
-plot <- examineAntiHER2NeoAdjuvantTherapy(AntiHER2s, outputFolder, minCellCount)
+plot <- examineAntiHER2NeoAdjuvantTherapy(AntiHER2s, cohortName, databaseId, outputFolder, minCellCount)
 plot
 ```

@@ -44,7 +44,7 @@
 #'                             in packaged results.
 #'
 #' @export
-runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortId, outputFolder, minCellCount = 5) {
+runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortId, databaseId, outputFolder, minCellCount = 5) {
 
   cancerCohortDataTable <- getCancerDataSet(cohortDatabaseSchema, cohortId, connection)
 
@@ -75,12 +75,12 @@ runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortI
 
   #counting intervention types by year
   ParallelLogger::logInfo(paste("Creating plot of intervention types by year for", cohortName))
-  examineInterventionsPerYear(augmentCancerDataSet, outputFolder, minCellCount)
+  examineInterventionsPerYear(augmentCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
 
   #plot 1
   #counting distinct diagnoses by year
   ParallelLogger::logInfo(paste("Creating plot of distinct Dxs by year for", cohortName))
-  examineDxPerYear(augmentCancerDataSet, outputFolder, minCellCount)
+  examineDxPerYear(augmentCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
 
   #plot 2.1
   #average age at diagnosis by year
@@ -90,12 +90,12 @@ runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortI
   #plot 2.2
   #percent distribution of  age at diagnosis by year
   ParallelLogger::logInfo(paste("Creating plot of percent distribution of age at Dx", cohortName))
-  examinePercentAgeAtDx(augmentCancerDataSet, outputFolder, minCellCount)
+  examinePercentAgeAtDx(augmentCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
 
   #plot 3
   #average number of drugs, by cohort year
   ParallelLogger::logInfo(paste("Creating plot of average number of drugs by year for", cohortName))
-  examineAvgNumDrugsByTreatmentClass(augmentCancerDataSet, outputFolder, minCellCount)
+  examineAvgNumDrugsByTreatmentClass(augmentCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
 
   #plot 4
   #percentage of FDA approved drugs that are administered each year
@@ -116,10 +116,10 @@ runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortI
   if (cohortId == 1775946)  #Breast Cancer
   {
     ParallelLogger::logInfo(paste("Creating plot of distinct interventions for each patient for each cohort year WITH ENDOCRINE THERAPY for", cohortName))
-    breastCancerSpecificAnalysis(cohortName, augmentCancerDataSet, cancerSpecificVectors, outputFolder, minCellCount)
+    breastCancerSpecificAnalysis(cohortName, augmentCancerDataSet, cancerSpecificVectors, cohortName, databaseId, outputFolder, minCellCount)
   }
   else if (cohortId == 1775947)
-    prostateCancerSpecificAnalysis(cohortName, augmentCancerDataSet, cancerSpecificVectors, outputFolder, minCellCount)
+    prostateCancerSpecificAnalysis(cohortName, augmentCancerDataSet, cancerSpecificVectors, cohortName, databaseId, outputFolder, minCellCount)
   # else if (cohortId == 1775948)
   #   multipleMyelomaCancerSpecificAnalysis(cohortName, cancerCohortDataTable, FDA_drug_approvals, patient_interventions, outputFolder, minCellCount)
   # else if (cohortId == 1775949)
@@ -127,7 +127,7 @@ runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortI
 }
 
 #counting intervention types by year
-examineInterventionsPerYear <- function(cancerCohortDataTable, outputFolder, minCellCount) {
+examineInterventionsPerYear <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
    distinct_breast_interventions <- cancerCohortDataTable %>%
                                  distinct(person_id, dx_year, distinct_interventions, age_group)
 
@@ -161,12 +161,12 @@ examineInterventionsPerYear <- function(cancerCohortDataTable, outputFolder, min
        scale_fill_manual(values = getPalette(colourCount))
   # ggsave(file.path(Folder, 'Plots/Plot 1 - Percent distribution of intervention types, by year.pdf'))
   file <- "percent_interventions_types_per_year"
-  saveAnalysis(x = z, data = numCancerInterventionsPerYear, analysisFolder = outputFolder, fileName = file, minCellCount, fieldName = "n")
+  saveAnalysis(x = z, data = numCancerInterventionsPerYear, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount, fieldName = "n")
   return(z)
 }
 
 #counting distinct diagnoses by year
-examineDxPerYear <- function(cancerCohortDataTable, outputFolder, minCellCount) {
+examineDxPerYear <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   #plot 1
   Number_of_Dx_per_year <- cancerCohortDataTable %>%
     group_by(dx_year) %>%
@@ -176,12 +176,12 @@ examineDxPerYear <- function(cancerCohortDataTable, outputFolder, minCellCount) 
     geom_point(size = 3, color = 'blue') +
     labs(x = 'Year', y = 'Number of Dx', title = 'Number of Dx Per Year')
   file <- "number_of_dx_per_year"
-  saveAnalysis(x = z, data = Number_of_Dx_per_year, analysisFolder = outputFolder, fileName = file, minCellCount, fieldName = "count")
+  saveAnalysis(x = z, data = Number_of_Dx_per_year, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount, fieldName = "count")
   return(z)
 }
 
 #average age at diagnosis by year
-examineAvgAgeAtDx <- function(cancerCohortDataTable, outputFolder, minCellCount) {
+examineAvgAgeAtDx <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   #plot 2
   avg_age_at_dx <- cancerCohortDataTable %>%
     group_by(dx_year) %>%
@@ -192,12 +192,12 @@ examineAvgAgeAtDx <- function(cancerCohortDataTable, outputFolder, minCellCount)
     labs(x = 'Year', y = 'Average age', title = 'Average Age at Diagnosis') +
     ylim(45, 65)
   file <- "avg_age_at_dx"
-  saveAnalysis(x = x, data = avg_age_at_dx, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = avg_age_at_dx, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   return(x)
 }
 
 #percent distribution of Ages at Diagnosis
-examinePercentAgeAtDx <- function(cancerCohortDataTable, outputFolder, minCellCount) {
+examinePercentAgeAtDx <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   age_group_at_dx <- cancerCohortDataTable %>%
     distinct(person_id, dx_year, age_group) %>%
     group_by(dx_year) %>%
@@ -224,11 +224,11 @@ examinePercentAgeAtDx <- function(cancerCohortDataTable, outputFolder, minCellCo
     scale_fill_manual(values = getPalette(colourCount))
 
   file <- "age_group_percent_at_dx"
-  saveAnalysis(x = x, data = age_group_at_dx, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = age_group_at_dx, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   return(x)
 }
 
-examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, outputFolder, minCellCount) {
+examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   #average number of drugs, by cohort year
   #plus average number of distinct major class drugs, by cohort year
   drug_count_pp <- cancerCohortDataTable %>%
@@ -268,9 +268,9 @@ examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, outputFold
 
   file <- "mean_and_sd_of_drugs_and_classes_by_year"
 
-  #first create an object that stores just 2020 values
-  labels <- mean_drugs_and_mean_classes_by_year %>% filter(dx_year == '2020')
-  #ToDo: is this plot needed?
+  #first create an object that stores just one year of values for in-graph labeling of lines
+  labels <- mean_drugs_and_mean_classes_by_year %>% filter(!is.na(dx_year)) %>% slice(1)
+  
   x <- ggplot(data = mean_drugs_and_mean_classes_by_year, aes(x = dx_year)) +
     geom_line(aes(y = average_number_of_drugs, group = 1), color = 'red') +
     geom_line(aes(y = standard_deviation, group = 1), linetype = 'dashed', color = 'red') +
@@ -282,12 +282,12 @@ examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, outputFold
     geom_label_repel(data = labels, aes(x = dx_year, y = class_sd, label = 'stdev of classes'), color = 'blue') +
     scale_y_discrete(limits = c('1', '2', '3', '4', '5', '6', '7', '8', '9'))
   #saving plot
-  saveAnalysis(x = x, data = labels, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = labels, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   # saveAnalysis(x = z, data = drug_count_pp, analysisFolder = outputFolder, fileName = "drug_count_pp", minCellCount = 0)
   # saveAnalysis(x = z, data = mean_and_sd_of_drugs_by_year, analysisFolder = outputFolder, fileName = "mean_and_sd_of_drugs_by_year", minCellCount = 0)
-  saveAnalysis(x = x, data = major_classes_pp, analysisFolder = outputFolder, fileName = "major_classes_pp", minCellCount = 0)
-  saveAnalysis(x = x, data = mean_and_sd_of_classes_by_year, analysisFolder = outputFolder, fileName = "mean_and_sd_of_classes_by_year", minCellCount = 0)
-  saveAnalysis(x = x, data = mean_drugs_and_mean_classes_by_year, analysisFolder = outputFolder, fileName = "mean_drugs_and_mean_classes_by_year", minCellCount = 0)
+  saveAnalysis(x = x, data = major_classes_pp, analysisFolder = outputFolder, fileName = "major_classes_pp", cohortName, databaseId, minCellCount = 0)
+  saveAnalysis(x = x, data = mean_and_sd_of_classes_by_year, analysisFolder = outputFolder, fileName = "mean_and_sd_of_classes_by_year", cohortName, databaseId, minCellCount = 0)
+  saveAnalysis(x = x, data = mean_drugs_and_mean_classes_by_year, analysisFolder = outputFolder, fileName = "mean_drugs_and_mean_classes_by_year", cohortName, databaseId, minCellCount = 0)
 
   return(x)
 }
@@ -378,7 +378,7 @@ examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, outputFold
 #   return(x)
 # }
 
-examineFirstDrugRecord <- function(first_drug_record, outputFolder, minCellCount) {
+examineFirstDrugRecord <- function(first_drug_record, cohortName, databaseId, outputFolder, minCellCount) {
   first_drug_record_counts <- first_drug_record %>%
     ungroup(person_id) %>%
     mutate(drug_year = substr(intervention_date, 1, 4)) %>%
@@ -390,11 +390,11 @@ examineFirstDrugRecord <- function(first_drug_record, outputFolder, minCellCount
     geom_bar(position = 'stack', stat = 'identity') +
     ggtitle('First drug administered post Dx, by year, by drug')
   file <- "first_drug_record_counts"
-  saveAnalysis(x = x, data = first_drug_record_counts, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = first_drug_record_counts, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   return(x)
 }
 
-examineTumorVsChemoTreatment <- function(cancerCohortDataTable, outputFolder, FDA_drug_approvals) {
+examineTumorVsChemoTreatment <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, FDA_drug_approvals) {
   #number of anti-neoplastic drugs approved by FDA, by year
 
   #number of distinct 'cancer fighting' drugs administered per year -- this excludes all glucocorticoids and aspirin
@@ -417,11 +417,11 @@ examineTumorVsChemoTreatment <- function(cancerCohortDataTable, outputFolder, FD
     geom_bar(stat = 'identity') +
     labs(title = "Comparing tumor treating vs chemo supportive drug administrations", x = 'year', y = 'counts')
   file <- "cancer_fighting_drugs_used_per_year_by_type"
-  saveAnalysis(x = x, data = drugs_used_per_year_by_type, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = drugs_used_per_year_by_type, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   return(x)
 }
 
-examineNeoadjuvantPercentages <- function(cancerCohortDataTable, outputFolder, minCellCount) {
+examineNeoadjuvantPercentages <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   #creating denom values for subsequent JOIN
   #you need the ungroup() function if you want to drop a variable that was used in a preceding group_by() function; ie, neoadjuvant in this ex
   denom <- cancerCohortDataTable %>%
@@ -440,11 +440,11 @@ examineNeoadjuvantPercentages <- function(cancerCohortDataTable, outputFolder, m
     geom_col(fill = 'blue') +
     labs(x = 'Year', y = 'Neoadjuvant %', title = '% of patients who received neoadjuvant therapy, by year')
   file <- "neoadjuvant_percentages"
-  saveAnalysis(x = x, data = neo_pcts, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = neo_pcts, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   return(x)
 }
 
-examineFirstLineTherapyForAdvancedStageCancer <- function(cancerCohortDataTable, outputFolder, minCellCount) {
+examineFirstLineTherapyForAdvancedStageCancer <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   metastatic_drug_records <- cancerCohortDataTable %>%
     filter(distinct_interventions == 'Drug', ingredient_type == 'Cancer-fighting', major_class != 'Adrenal Glucocorticoid', generic_drug_name != 'aspirin') %>%
     arrange(dx_year, person_id, intervention_date)
@@ -495,11 +495,11 @@ examineFirstLineTherapyForAdvancedStageCancer <- function(cancerCohortDataTable,
     labs(title = "Stage IV First Line Therapies, by Year For Top Two Used Drugs", x = 'year', y = 'counts') +
     theme(legend.position = 'none')
   file <- "stage_iv_first_line_therapies"
-  saveAnalysis(x = x, data = stageIV_firstLine_concurrentTherapies, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = stageIV_firstLine_concurrentTherapies, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   return(x)
 }
 
-examinePercentEndocrineForAdjuvantTherapy <- function(adjuvant_endrocrine_records, outputFolder, minCellCount) {
+examinePercentEndocrineForAdjuvantTherapy <- function(adjuvant_endrocrine_records, cohortName, databaseId, outputFolder, minCellCount) {
   # plot 11a
   #calculating the percent of patients who receive adjuvant Endocrine therapy, by year
   #selecting for patients who are labeled as having adjuvant drug records
@@ -521,20 +521,20 @@ examinePercentEndocrineForAdjuvantTherapy <- function(adjuvant_endrocrine_record
 
   title <- "Percent distribution of first line monotherapy endocrine therapy in the adjuvant setting, by year"
   file <- "percent_of_distribution_first_line_mono_endocrine_therapy_adjuvant"
-  x <- createPercentPlotForTherapy(adjuvant_endrocrine_records, title, file, minCellCount, outputFolder)
+  x <- createPercentPlotForTherapy(adjuvant_endrocrine_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
   return(x)
 }
 
-examinePercentEndocrineForNeoAdjuvantTherapy <- function(neoadjuvant_endrocrine_records, outputFolder, minCellCount) {
+examinePercentEndocrineForNeoAdjuvantTherapy <- function(neoadjuvant_endrocrine_records, cohortName, databaseId, outputFolder, minCellCount) {
   # plot 11a - 2
   title <- "Percent distribution of first line monotherapy endocrine therapy in the neoadjuvant setting, by year"
   file <- "percent_of_distribution_first_line_mono_endocrine_therapy_neoadjuvant"
-  x <- createPercentPlotForTherapy(neoadjuvant_endrocrine_records, title, file, minCellCount, outputFolder)
+  x <- createPercentPlotForTherapy(neoadjuvant_endrocrine_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
   return(x)
 }
 
 #selecting for patients who are labeled as having adjuvant chemotherapy or immunotherapy records
-examinePercentChemoForAdjuvantTherapy <- function(adjuvant_chemo_records, outputFolder, minCellCount) {
+examinePercentChemoForAdjuvantTherapy <- function(adjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount) {
   # adjuvant_chemo_records <- cancerCohortDataTable %>%
   #   filter(neoadjuvant == '0', rx_category == 'Chemotherapy') %>%
   #   distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
@@ -545,12 +545,12 @@ examinePercentChemoForAdjuvantTherapy <- function(adjuvant_chemo_records, output
   #plot the data
   title <- "Percent distribution of first line chemotherapy in the adjuvant setting, by year"
   file <- "percent_of_distribution_first_line_chemotherapy_adjuvant"
-  x <- createPercentPlotForTherapy(adjuvant_chemo_records, title, file, minCellCount, outputFolder)
+  x <- createPercentPlotForTherapy(adjuvant_chemo_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
   return(x)
 }
 
 #selecting for patients who are labeled as having NEOadjuvant chemotherapy
-examinePercentChemoForNeoAdjuvantTherapy <- function(neoadjuvant_chemo_records, outputFolder, minCellCount) {
+examinePercentChemoForNeoAdjuvantTherapy <- function(neoadjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount) {
   # neoadjuvant_chemo_records <- cancerCohortDataTable %>%
   #   filter(neoadjuvant == '1', rx_category == 'Chemotherapy') %>%
   #   distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
@@ -561,12 +561,12 @@ examinePercentChemoForNeoAdjuvantTherapy <- function(neoadjuvant_chemo_records, 
   #plot the data
   title <- "Percent distribution of first line chemotherapy in the neoadjuvant setting, by year"
   file <- "percent_of_distribution_first_line_chemotherapy_neoadjuvant"
-  x <- createPercentPlotForTherapy(neoadjuvant_chemo_records, title, file, minCellCount, outputFolder)
+  x <- createPercentPlotForTherapy(neoadjuvant_chemo_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
   return(x)
 }
 
 #generic function that plots the percentage of a therapy (i.e. chemo, immno, etc) by year
-createPercentPlotForTherapy <- function(specific_therapy_records, title, file, minCellCount, outputFolder) {
+createPercentPlotForTherapy <- function(specific_therapy_records, title, file, cohortName, databaseId, minCellCount, outputFolder) {
   #first subsetting the data to get the highest two counts per year
   first_line_therapy_counts_by_year <- specific_therapy_records %>%
     group_by(dx_year, generic_drug_name) %>%
@@ -588,7 +588,7 @@ createPercentPlotForTherapy <- function(specific_therapy_records, title, file, m
     theme(plot.title = element_text(size = 12), legend.position = 'bottom',
           legend.text = element_text(size = 5), legend.key.size = unit(.5, 'cm'), #legend.key.size = unit(.25, 'cm'),
           legend.title = element_text(size = 5))
-  saveAnalysis(x = x, data = first_line_therapy_counts_by_year, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = first_line_therapy_counts_by_year, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   return(x)
 }
 
@@ -624,7 +624,7 @@ createPercentPlotForTherapy <- function(specific_therapy_records, title, file, m
 # }
 
 #distribution of classes of antineoplastics over time
-examineAntineoplasticsOverTime <- function(cancerCohortDataTable, outputFolder, minCellCount) {
+examineAntineoplasticsOverTime <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   classes_pp <- cancerCohortDataTable %>%
     filter(ingredient_type == 'Cancer-fighting', major_class != 'Adrenal Glucocorticoid', generic_drug_name != 'aspirin') %>%
     distinct(person_id, dx_year, major_class) %>%
@@ -651,32 +651,33 @@ examineAntineoplasticsOverTime <- function(cancerCohortDataTable, outputFolder, 
     scale_fill_manual(values = getPalette(colourCount))
 
   file <- "percent_antineoplastics_by_year"
-  saveAnalysis(x = x, data = classes_pp, analysisFolder = outputFolder, fileName = file, minCellCount = 0)
+  saveAnalysis(x = x, data = classes_pp, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount = 0)
   return(x)
 }
 
 #percent distribution of antiher2 over time
-examineAntiHER2AdjuvantTherapy <- function(adjuvant_antiher2_records, outputFolder, minCellCount) {
+examineAntiHER2AdjuvantTherapy <- function(adjuvant_antiher2_records, cohortName, databaseId, outputFolder, minCellCount) {
 
   #plot the data
   title <- "Percent Distribution of First Line AntiHER2 in the Adjuvant Setting by Year"
   file <- "percent_of_distribution_first_line_antiHER2_adjuvant"
-  x <- createPercentPlotForTherapy(adjuvant_antiher2_records, title, file, minCellCount, outputFolder)
+  x <- createPercentPlotForTherapy(adjuvant_antiher2_records, title, cohortName, databaseId, file, minCellCount, outputFolder)
   return(x)
 }
 
 #percent distribution of antiher2 over time
-examineAntiHER2NeoAdjuvantTherapy <- function(neoadjuvant_antiher2_records, outputFolder, minCellCount) {
+examineAntiHER2NeoAdjuvantTherapy <- function(neoadjuvant_antiher2_records, cohortName, databaseId, outputFolder, minCellCount) {
 
   #plot the data
   title <- "Percent Distribution of First Line AntiHER2 in the NeoAdjuvant Setting by Year"
   file <- "percent_of_distribution_first_line_antiHER2_NEOadjuvant"
-  x <- createPercentPlotForTherapy(neoadjuvant_antiher2_records, title, file, minCellCount, outputFolder)
+  x <- createPercentPlotForTherapy(neoadjuvant_antiher2_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
   return(x)
 }
 
 #function writes the aggregate data as well as the plot image to files
-saveAnalysis <- function(x, data = last_plot()$data[[1]], analysisFolder, fileName, minCellCount, fieldName = "") {
+saveAnalysis <- function(x, data = last_plot()$data[[1]], analysisFolder, fileName, cohortName, databaseId, minCellCount, fieldName = "") {
+  fullFileName <- paste0(databaseId, "_", gsub(" ", "_", cohortName), "_", fileName)
   analysisPlotsFolder <- paste0(analysisFolder, "/plots")
   if (!file.exists(analysisPlotsFolder)) {
     dir.create(analysisPlotsFolder, recursive = TRUE)
@@ -685,10 +686,10 @@ saveAnalysis <- function(x, data = last_plot()$data[[1]], analysisFolder, fileNa
   if (!file.exists(analysisDataFolder)) {
     dir.create(analysisDataFolder, recursive = TRUE)
   }
-  fullCsvFileName <- file.path(analysisDataFolder, fileName)
-  write_rds(x, file.path(analysisDataFolder, paste0(fileName, ".Rds")))
+  fullCsvFileName <- file.path(analysisDataFolder, fullFileName)
+  write_rds(x, file.path(analysisDataFolder, paste0(fullFileName, ".Rds")))
   saveDataToCsv(data, fullCsvFileName, minCellCount, fieldName)
-  ggsave(plot = x, file.path(analysisPlotsFolder, paste0(fileName, ".pdf")))
+  ggsave(plot = x, file.path(analysisPlotsFolder, paste0(fullFileName, ".pdf")))
 }
 
 saveDataToCsv <- function(data, fileName, minCellCount, fieldName) {
