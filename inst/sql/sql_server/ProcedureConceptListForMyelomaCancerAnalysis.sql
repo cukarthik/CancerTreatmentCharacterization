@@ -1,5 +1,5 @@
 {DEFAULT @table_name = "nci_procedure_concept_code_list"}
-{DEFAULT @cohort_id = 1775949}
+{DEFAULT @cohort_id = 1775948}
 
 IF OBJECT_ID('#procedure_codes', 'U') IS NOT NULL
  DROP TABLE #procedure_codes;
