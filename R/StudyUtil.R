@@ -75,8 +75,8 @@ getMarkdownAnalysisFileName <- function(cohortId) {
 getCancerDataSet <- function(cohortDatabaseSchema, cohortId, connection) {
   sql <- "select * from @target_database_schema.@dataset_name"
   datasetName <- getCancerDataSetName(cohortId)
-  renderedSql <- render(sql = sql, target_database_schema = cohortDatabaseSchema, dataset_name = datasetName)
-  translatedSql <- translate(renderedSql, targetDialect = connection@dbms)
+  renderedSql <- SqlRender::render(sql = sql, target_database_schema = cohortDatabaseSchema, dataset_name = datasetName)
+  translatedSql <- SqlRender::translate(renderedSql, targetDialect = connection@dbms)
   cancerCohortDataTable <- DatabaseConnector::querySql(connection, translatedSql)
   names(cancerCohortDataTable) <- tolower(names(cancerCohortDataTable))
   return(cancerCohortDataTable)
