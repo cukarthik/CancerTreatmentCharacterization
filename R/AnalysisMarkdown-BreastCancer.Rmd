@@ -35,6 +35,7 @@ cohortId <- params$cohortId
 cohortName <- params$cohortName
 databaseId <- params$databaseId
 time_window_for_interventions <- 365
+connection <- params$connection
 
 cancerCohortDataTable <- getCancerDataSet(params$cohortDatabaseSchema, params$cohortId, params$connection)
 writeLines(paste("outputFolder = ", outputFolder, "\n",
