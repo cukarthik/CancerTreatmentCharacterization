@@ -56,15 +56,15 @@ getConceptListSqlFileName <- function(cohortId) {
 
 getMarkdownAnalysisFileName <- function(cohortId) {
   if (cohortId == 1775946)
-    return(list(file = "AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Breast Cancer"))
+    return(list(file = "../inst/rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Breast Cancer"))
   else if (cohortId == 1775947)
-    return(list(file = "AnalysisMarkdown-ProstateCancer.Rmd", cancerName = "Prostate Cancer"))
+    return(list(file = "../inst/rmd/AnalysisMarkdown-ProstateCancer.Rmd", cancerName = "Prostate Cancer"))
   else if (cohortId == 1775948)
-    return(list(file = "AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Multiple Myeloma"))
+    return(list(file = "../inst/rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Multiple Myeloma"))
   else if (cohortId == 1775949)
-    return(list(file = "AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Lung Cancer"))
+    return(list(file = "../inst/rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Lung Cancer"))
   else if (cohortId == 1775950)
-    return(list(sqlFile = "AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Prostate Cancer Surveillance"))
+    return(list(sqlFile = "../inst/rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Prostate Cancer Surveillance"))
   else return(NULL) #this line should not execute
 }
 
