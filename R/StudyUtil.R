@@ -56,7 +56,7 @@ getConceptListSqlFileName <- function(cohortId) {
 
 getMarkdownAnalysisFileName <- function(cohortId) {
   if (cohortId == 1775946)
-    return(list(file = "AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Breast Cancer"))
+    return(list(file = system.file("rmd", "AnalysisMarkdown-BreastCancer.Rmd") , cancerName = "Breast Cancer"))
   else if (cohortId == 1775947)
     return(list(file = "../inst/rmd/AnalysisMarkdown-ProstateCancer.Rmd", cancerName = "Prostate Cancer"))
   else if (cohortId == 1775948)
