@@ -116,10 +116,10 @@ runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortI
   if (cohortId == 1775946)  #Breast Cancer
   {
     ParallelLogger::logInfo(paste("Creating plot of distinct interventions for each patient for each cohort year WITH ENDOCRINE THERAPY for", cohortName))
-    breastCancerSpecificAnalysis(cohortName, augmentCancerDataSet, cancerSpecificVectors, cohortName, databaseId, outputFolder, minCellCount)
+    breastCancerSpecificAnalysis(cohortName, augmentCancerDataSet, cancerSpecificVectors, databaseId, outputFolder, minCellCount)
   }
   else if (cohortId == 1775947)
-    prostateCancerSpecificAnalysis(cohortName, augmentCancerDataSet, cancerSpecificVectors, cohortName, databaseId, outputFolder, minCellCount)
+    prostateCancerSpecificAnalysis(cohortName, augmentCancerDataSet, cancerSpecificVectors, databaseId, outputFolder, minCellCount)
   # else if (cohortId == 1775948)
   #   multipleMyelomaCancerSpecificAnalysis(cohortName, cancerCohortDataTable, FDA_drug_approvals, patient_interventions, outputFolder, minCellCount)
   # else if (cohortId == 1775949)
