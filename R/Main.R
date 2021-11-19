@@ -330,8 +330,8 @@ createAndLoadFileToTable <- function(pathToCsv, sep = ",", connection, cohortDat
 
     # }
     sql <- paste0("INSERT INTO @target_database_schema.@table_name VALUES ", values, ";")
-    renderedSql <- render(sql = sql, target_database_schema = cohortDatabaseSchema, table_name = tableName)
-    insertSql <- translate(renderedSql, targetDialect = targetDialect)
+    renderedSql <- SqlRender::render(sql = sql, target_database_schema = cohortDatabaseSchema, table_name = tableName)
+    insertSql <- SqlRender::translate(renderedSql, targetDialect = targetDialect)
     DatabaseConnector::executeSql(connection, insertSql)
   }
 }
