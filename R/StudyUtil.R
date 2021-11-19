@@ -46,7 +46,7 @@ getConceptListSqlFileName <- function(cohortId) {
   else if (cohortId == 1775947)
     return(list(sqlFile = "ProcedureConceptListForProstateCancerAnalysis.sql", cancerName = "Prostate Cancer"))
   else if (cohortId == 1775948)
-    return(list(sqlFile = "ProcedureConceptListForBreastCancerAnalysis.sql", cancerName = "Multiple Myeloma"))
+    return(list(sqlFile = "ProcedureConceptListForMyelomaCancerAnalysis.sql", cancerName = "Multiple Myeloma"))
   else if (cohortId == 1775949)
     return(list(sqlFile = "ProcedureConceptListForLungCancerAnalysis.sql", cancerName = "Lung Cancer"))
   else if (cohortId == 1775950)
@@ -62,7 +62,7 @@ getMarkdownAnalysisFileName <- function(cohortId) {
   else if (cohortId == 1775948)
     return(list(file = "../rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Multiple Myeloma"))
   else if (cohortId == 1775949)
-    return(list(file = "../rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Lung Cancer"))
+    return(list(file = "../rmd/AnalysisMarkdown-LungCancer.Rmd", cancerName = "Lung Cancer"))
   else if (cohortId == 1775950)
     return(list(sqlFile = "../rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Prostate Cancer Surveillance"))
   else return(NULL) #this line should not execute
@@ -71,11 +71,12 @@ getMarkdownAnalysisFileName <- function(cohortId) {
 
 #' This function returns the appropriate data set needed to run the analysis for a specific cancer cohort based on the cohortId
 #'
+#' @export
 getCancerDataSet <- function(cohortDatabaseSchema, cohortId, connection) {
   sql <- "select * from @target_database_schema.@dataset_name"
   datasetName <- getCancerDataSetName(cohortId)
-  renderedSql <- render(sql = sql, target_database_schema = cohortDatabaseSchema, dataset_name = datasetName)
-  translatedSql <- translate(renderedSql, targetDialect = connection@dbms)
+  renderedSql <- SqlRender::render(sql = sql, target_database_schema = cohortDatabaseSchema, dataset_name = datasetName)
+  translatedSql <- SqlRender::translate(renderedSql, targetDialect = connection@dbms)
   cancerCohortDataTable <- DatabaseConnector::querySql(connection, translatedSql)
   names(cancerCohortDataTable) <- tolower(names(cancerCohortDataTable))
   return(cancerCohortDataTable)
@@ -84,6 +85,7 @@ getCancerDataSet <- function(cohortDatabaseSchema, cohortId, connection) {
 
 #' This function returns the appropriate vectors needed to run the analysis for a specific cancer cohort based on the cohortId
 #'
+#' @export
 getVectorsForSpecificCancer <- function(cohortId) {
   if (cohortId == 1775946) {
     #local interventions
@@ -109,9 +111,20 @@ getVectorsForSpecificCancer <- function(cohortId) {
     return(list(interventions=interventions, endocrine_drugs=endocrine_drugs, immuno_drugs=immuno_drugs,
          chemo_drugs=chemo_drugs, targeted_drugs=targeted_drugs, drugs_vector=c(endocrine_drugs, chemo_drugs, immuno_drugs, targeted_drugs)))
   } else if (cohortId == 1775949) {
-    lung_interventions_vector <- c("Total Lobectomy", "Radiotherapy", "Wedge Resection", "Lobectomy", "Pneumonectomy")
-    cancerAntineoplastics <- c('Chemotherapy', 'Immunotherapy')
-    return(list(interventions=lung_interventions_vector, drugs_vector=cancerAntineoplastics))
+    interventions <- c("Total Lobectomy", "Radiotherapy", "Wedge Resection", "Lobectomy", "Pneumonectomy")
+
+    #drug vectors
+    chemo_drugs <- c('Docetaxel', 'Carboplatin', 'Cisplatin', 'Oxaliplatin', 'Gemcitabine', 'Etoposide', 'Paclitaxel', 'Pemetrexed', 'Vinorelbine')
+    checkpoint_inhibitors <- c('Nivolumab', 'Pembrolizumab', 'Atezolizumab', 'Ipilimumab', 'Durvalumab')
+    VEGF_positive_drugs <- c('Bevacizumab', 'Nintedanib', 'Ramucirumab')
+    EGFR_positive_drugs <- c('Osimertinib', 'Erlotinib', 'Gefitinib', 'Afatinib')
+    ALK_positive_drugs <- c('Crizotinib', 'Ceritinib', 'Alectinib', 'Brigatinib')
+    KRAS_positive_drugs <- c('Sotorasib', 'Adagrasib')
+    all_lung_antineoplastics <- c(chemo_drugs, checkpoint_inhibitors, VEGF_positive_drugs, EGFR_positive_drugs, ALK_positive_drugs, KRAS_positive_drugs)
+
+    return(list(interventions=interventions, chemo_drugs=chemo_drugs, checkpoint_inhibitors=checkpoint_inhibitors, VEGF_positive_drugs=VEGF_positive_drugs,
+         EGFR_positive_drugs=EGFR_positive_drugs, ALK_positive_drugs=ALK_positive_drugs, KRAS_positive_drugs=KRAS_positive_drugs,
+                drugs_vector=all_lung_antineoplastics))
   }
   else return(NULL)
 
@@ -119,6 +132,7 @@ getVectorsForSpecificCancer <- function(cohortId) {
 
 #' This function returns the cancer specific dataset name based on the cohortId
 #'
+#' @export
 getCancerDataSetName <- function(cohortId) {
   sqlFile <- getBuildSqlFileName(cohortId)
   datasetName <- paste0("nci_", gsub(" ", "_", tolower(sqlFile$cancerName)), "_treatment_dataset")
@@ -127,6 +141,7 @@ getCancerDataSetName <- function(cohortId) {
 
 #' This function augments the cancer specific dataset interventions per patient
 #'
+#' @export
 augmentCancerDataSet <- function(cancerCohortDataTable, interventionsVector, drugVector, timeWindowForInterventions) {
   interventionsPivotWide <- cancerCohortDataTable %>%
     filter(intervention_type %in% interventionsVector | generic_drug_name %in% drugVector) %>%

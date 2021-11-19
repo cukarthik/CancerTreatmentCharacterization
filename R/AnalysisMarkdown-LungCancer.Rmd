@@ -1,0 +1,285 @@
+---
+title: "Lung Cancer Analyses"
+author: "Karthik Natarajan and Thomas Falconer"
+date: "11/17/2021"
+output: html_document
+
+params:
+ cohortDatabaseSchema: x
+ cohortId: 1775949
+ cohortName : lung_cancer
+ databaseId : x
+ connection: x
+ minCellCount: 5
+ outputFolder: x
+
+---
+
+```{r message=FALSE, warning=FALSE}
+library(devtools)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(ggrepel)
+library(lubridate)
+library(forcats)
+library(RColorBrewer)
+```
+
+```{r message=FALSE, warning=FALSE}
+outputFolder <- params$outputFolder
+minCellCount <- params$minCellCount
+cohortId <- params$cohortId
+cohortName <- params$cohortName
+databaseId <- params$databaseId
+time_window_for_interventions <- 365
+connection <- params$connection
+cohortDatabaseSchema <- params$cohortDatabaseSchema
+
+cancerCohortDataTable <- getCancerDataSet(cohortDatabaseSchema, cohortId, connection)
+
+writeLines(paste("outputFolder = ", outputFolder, "\n",
+      "minCellCount = ", minCellCount, "\n",
+      "cohortId = ", cohortId, "\n",
+      "cohortName = ", cohortName, "\n",
+      "databaseId = ", databaseId, "\n",
+      "time_window_for_interventions = ", time_window_for_interventions))
+```
+
+```{r message=FALSE, warning=FALSE}
+  cancerSpecificVectors <- getVectorsForSpecificCancer(cohortId)
+
+  interventionsVector <- cancerSpecificVectors$interventions
+  drugVector <- cancerSpecificVectors$drugs_vector
+  timeWindowForInterventions <- time_window_for_interventions
+  df1 <- cancerCohortDataTable %>%
+    filter(intervention_type %in% interventionsVector | generic_drug_name %in% drugVector) %>%
+    filter(difftime(cohort_start_date, intervention_date) <= timeWindowForInterventions) %>%
+    distinct(person_id, dx_year, intervention_date, intervention_type, age_group) %>%
+    arrange(dx_year, person_id, intervention_date, intervention_type) %>%
+    group_by(person_id, intervention_date) %>% slice(1) %>% arrange(person_id, intervention_date) %>%
+    ungroup(intervention_date) %>% select(person_id, dx_year, intervention_type)
+
+  # interventionsPivotWide
+  distinct_lung_interventions <- df1 %>% distinct(person_id, dx_year, intervention_type) %>%
+    pivot_wider(names_from = intervention_type, values_from = intervention_type)
+
+  ###Appending distinct patient intervention field to table###
+  interventions_by_pt <- distinct_lung_interventions %>%
+    unite(distinct_interventions, 3:ncol(distinct_lung_interventions), sep = ' + ', na.rm = TRUE)
+
+  augmentedCancerDataSet <- cancerCohortDataTable %>%
+    left_join(interventions_by_pt, by = c('person_id')) %>%
+    select(-c(dx_year.x)) %>%
+    rename(dx_year = dx_year.y)
+
+  #clear out previous run data
+  if (file.exists(outputFolder)) {
+    unlink(outputFolder, recursive = TRUE)
+  } else {
+    dir.create(outputFolder, recursive = TRUE)
+  }
+
+  cancerSpecificVectors
+```
+```{r message=FALSE, warning=FALSE}
+#duplicate of generic intervention plot but does some addition filtering (i.e., 2000 and multiple interventions in a day)
+df2 <- interventions_by_pt %>% arrange(person_id) %>% group_by(dx_year, distinct_interventions) %>% tally() %>%
+      arrange(dx_year, desc(n)) %>% group_by(dx_year) %>% mutate(year_total = sum(n), pct = round(n*100/year_total)) %>% filter(dx_year >= 2000)
+
+  file <- "percent_interventions_types_per_year_additional_filter"
+  colourCount <-  length(unique(interventions_by_pt$distinct_interventions))
+  getPalette <- colorRampPalette(brewer.pal(26, "Set3"))
+
+#plot the data
+  z <- ggplot(df2, aes(fill = distinct_interventions, x = dx_year, y = pct)) +
+      geom_bar(position = 'fill', stat = 'identity') +
+      geom_text(aes(label = n), position = position_fill(vjust = .5), size = 2.5) +
+      labs(x = 'Year', y = 'percent', title = 'Percent and Count distributions of interventions, by year') +
+      theme(legend.position = 'bottom', legend.text = element_text(size = 3), legend.key.size = unit(.25, 'cm'), legend.title = element_text(size = 6)) +
+      scale_fill_manual(values = getPalette(colourCount))
+# ggsave(file.path(Folder, 'Plots/Plot 0 - Percent distribution of intervention types, by year.pdf'))
+
+saveAnalysis(x = z, data = df2, analysisFolder = outputFolder, fileName = file, cohortName, databaseId, minCellCount, fieldName = "n")
+z
+```
+
+```{r message=FALSE, warning=FALSE}
+# Percent distribution of intervention types, by year
+plot <- examineInterventionsPerYear(augmentedCancerDataSet %>% filter(dx_year >= 2000), cohortName, databaseId, outputFolder, minCellCount)
+plot
+```
+
+```{r message=FALSE, warning=FALSE}
+#plot 1
+#counting distinct diagnoses by year
+plot <- examineDxPerYear(augmentedCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
+plot
+```
+
+```{r message=FALSE, warning=FALSE}
+#plot 2
+#average age at diagnosis by year
+plot <- examineAvgAgeAtDx(augmentedCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
+plot
+```
+
+```{r message=FALSE, warning=FALSE}
+#average drug classes by year
+plot <- examineAvgNumDrugsByTreatmentClass(augmentedCancerDataSet, cohortName, databaseId, outputFolder, minCellCount)
+plot
+```
+```
+## All the below plots are based on the index date of each patient and the earliest drug intervention for irrespective of the year the drug (intervention) was taken.
+```
+
+```{r message=FALSE, warning=FALSE}
+#plot 11c
+#first line chemotherapy in the adjuvant setting
+adjuvant_chemo_records <- cancerCohortDataTable %>%
+  filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$chemo_drugs) %>%
+  distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+  arrange(dx_year, person_id, intervention_date) %>%
+  group_by(person_id) %>%
+  slice(1)
+plot <- examinePercentChemoForAdjuvantTherapy(adjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount)
+plot
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#same for chemotherapy drugs for neoadjuvant setting instead of adjuvant setting
+neoadjuvant_chemo_records <- cancerCohortDataTable %>%
+    filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$chemo_drugs) %>%
+    distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+    arrange(dx_year, person_id, intervention_date) %>%
+    group_by(person_id) %>%
+    slice(1)
+plot <- examinePercentChemoForNeoAdjuvantTherapy(neoadjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount)
+plot
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#plot 5 - adjuvant checkpoint inhibitors
+adjuvant_checkpoint_records <- cancerCohortDataTable %>%
+  filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$checkpoint_inhibitors) %>%
+  distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+  arrange(dx_year, person_id, intervention_date) %>%
+  group_by(person_id) %>%
+  slice(1)
+
+
+#plot the data
+title <- "Percent and count distributions of first line checkpoint therapy in the adjuvant setting, by year"
+file <- "percent_of_distribution_first_line_checkpoint_therapy_adjuvant"
+plot <- createPercentPlotForTherapy(adjuvant_checkpoint_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#same for chemotherapy drugs for neoadjuvant setting instead of adjuvant setting
+neoadjuvant_checkpoint_records <- cancerCohortDataTable %>%
+  filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$checkpoint_inhibitors) %>%
+  distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+  arrange(dx_year, person_id, intervention_date) %>%
+  group_by(person_id) %>%
+  slice(1)
+
+#plot the data
+title <- "Percent and count distributions of first line checkpoint therapy in the neoadjuvant setting, by year"
+file <- "percent_of_distribution_first_line_checkpoint_therapy_neoadjuvant"
+plot <- createPercentPlotForTherapy(neoadjuvant_checkpoint_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot
+
+```
+
+
+```{r message=FALSE, warning=FALSE}
+#adjuvant VEGF positive_drugs
+adjuvant_vegf_records <- cancerCohortDataTable %>%
+  filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$VEGF_positive_drugs) %>%
+  distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+  arrange(dx_year, person_id, intervention_date) %>%
+  group_by(person_id) %>%
+  slice(1)
+
+
+#plot the data
+title <- "Percent and count distributions of first line VEGF therapy in the adjuvant setting, by year"
+file <- "percent_of_distribution_first_line_vegf_therapy_adjuvant"
+plot <- createPercentPlotForTherapy(adjuvant_vegf_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#neoadjuvant VEGF positive_drugs
+neoadjuvant_vegf_records <- cancerCohortDataTable %>%
+  filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$VEGF_positive_drugs) %>%
+  distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+  arrange(dx_year, person_id, intervention_date) %>%
+  group_by(person_id) %>%
+  slice(1)
+
+#plot the data
+title <- "Percent and count distributions of first line VEGF therapy in the neoadjuvant setting, by year"
+file <- "percent_of_distribution_first_line_vegf_therapy_neoadjuvant"
+plot <- createPercentPlotForTherapy(neoadjuvant_vegf_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot
+
+```
+
+-----
+```{r message=FALSE, warning=FALSE}
+#adjuvant EGFR positive_drugs
+adjuvant_egfr_records <- cancerCohortDataTable %>%
+  filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$EGFR_positive_drugs) %>%
+  distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+  arrange(dx_year, person_id, intervention_date) %>%
+  group_by(person_id) %>%
+  slice(1)
+
+
+#plot the data
+title <- "Percent and count distributions of first line EGFR therapy in the adjuvant setting, by year"
+file <- "percent_of_distribution_first_line_egfr_therapy_adjuvant"
+plot <- createPercentPlotForTherapy(adjuvant_egfr_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#neoadjuvant VEGF positive_drugs
+neoadjuvant_vegf_records <- cancerCohortDataTable %>%
+  filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$EGFR_positive_drugs) %>%
+  distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+  arrange(dx_year, person_id, intervention_date) %>%
+  group_by(person_id) %>%
+  slice(1)
+
+#plot the data
+title <- "Percent and count distributions of first line EGFR therapy in the neoadjuvant setting, by year"
+file <- "percent_of_distribution_first_line_egfr_therapy_neoadjuvant"
+plot <- createPercentPlotForTherapy(neoadjuvant_vegf_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#adjuvant all systemic drugs for lung
+adjuvant_all_antineoplastics_records <- cancerCohortDataTable %>%
+  filter(neoadjuvant == '0', generic_drug_name %in% cancerSpecificVectors$drugs_vector) %>%
+  distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
+  arrange(dx_year, person_id, intervention_date) %>%
+  group_by(person_id) %>%
+  slice(1)
+
+#plot the data
+title <- "Percent and count distributions of first line all antineoplastics adjuvant setting, by year"
+file <- "percent_of_distribution_first_line_all_lung_antineoplastics_adjuvant"
+plot <- createPercentPlotForTherapy(adjuvant_all_antineoplastics_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot
+
+```

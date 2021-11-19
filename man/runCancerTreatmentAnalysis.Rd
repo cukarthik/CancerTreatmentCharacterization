@@ -8,6 +8,7 @@ runCancerTreatmentAnalysis(
   connection,
   cohortDatabaseSchema,
   cohortId,
+  databaseId,
   outputFolder,
   minCellCount = 5
 )
@@ -18,6 +19,9 @@ runCancerTreatmentAnalysis(
 \item{cohortDatabaseSchema}{Schema name where intermediate data can be stored. You will need to have
 write priviliges in this schema. Note that for SQL Server, this should
 include both the database and schema name, for example 'cdm_data.dbo'.}
+
+\item{databaseId}{A short string for identifying the database (e.g.
+'Synpuf').}
 
 \item{outputFolder}{Name of local folder to place results; make sure to use forward slashes
 (/). Do not use a folder on a network drive since this greatly impacts
@@ -36,9 +40,6 @@ study.}
 
 \item{oracleTempSchema}{Should be used in Oracle to specify a schema where the user has write
 priviliges for storing temporary tables.}
-
-\item{databaseId}{A short string for identifying the database (e.g.
-'Synpuf').}
 
 \item{databaseName}{The full name of the database (e.g. 'Medicare Claims
 Synthetic Public Use Files (SynPUFs)').}
