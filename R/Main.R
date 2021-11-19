@@ -87,6 +87,7 @@ execute <- function(connectionDetails,
                     runOhdsiCharacterization = TRUE,
                     runTreatmentAnalysis = TRUE,
                     runDiagnostics = TRUE,
+                    runADIAnalysis = TRUE,
                     packageResults = TRUE,
                     renderMarkdown = FALSE,
                     maxCores = 4,
@@ -241,6 +242,11 @@ execute <- function(connectionDetails,
                                         minCellCount)
       }
     }
+    
+    if (runADIAnalysis) {
+      ParallelLogger::logInfo("Run ADI Analysis to get County level patient counts and median ADI")
+      CohortADIAnalysis(connection, cohortDatabaseSchema, cohortTable, outputFolder, minCellCount = 10)
+    }
 
     if (packageResults) {
       ParallelLogger::logInfo("Packaging results")
@@ -265,12 +271,13 @@ initializeStudy <- function(outputFolder, connection, cohortDatabaseSchema, orac
   ParallelLogger::addDefaultErrorReportLogger(file.path(outputFolder, "errorReportR.txt"))
 
   if (reloadData) {
+    if(runADIAnalysis){ 
     #Load ADI data
     print(paste0("package: ", package))
     ParallelLogger::logInfo("Loading ADI Data")
     pathToCsv <- system.file("settings", "US_2019_ADI_Census_Block_Group.csv", package = package)
     createAndLoadFileToTable(pathToCsv, sep = ",", connection, cohortDatabaseSchema, createTableFile = "CreateADITable.sql", tableName = "adi_data", targetDialect = attr(connection, "dbms"), oracleTempSchema, package)
-
+    }
     #load CanMed
     ParallelLogger::logInfo("Loading CanMED Data")
     pathToCsv <- system.file("settings", "can_med.txt", package = package)
