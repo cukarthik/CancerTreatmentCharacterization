@@ -31,7 +31,7 @@ and domain_id = 'PROCEDURE'
 -----2. TRANSPLANTATION CODES --------------
 
 --Autologous stem cell transplantation
-INSERT INTO #MM_procedure_code_list
+INSERT INTO #procedure_codes
 select 
 c.concept_id as procedure_concept_id
 , c.concept_name as procedure_name
@@ -43,7 +43,7 @@ from @vocabulary_database_schema.concept c
 
 
 --Allogeneic stem cell transplantation
-INSERT INTO #MM_procedure_code_list
+INSERT INTO #procedure_codes
 select 
 c.concept_id as procedure_concept_id
 , c.concept_name as procedure_name
