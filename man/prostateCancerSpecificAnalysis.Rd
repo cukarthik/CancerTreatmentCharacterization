@@ -8,6 +8,7 @@ prostateCancerSpecificAnalysis(
   cohortName,
   cancerCohortDataTable,
   cancerSpecificVectors,
+  databaseId,
   outputFolder,
   minCellCount
 )
