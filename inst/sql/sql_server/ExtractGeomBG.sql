@@ -3,16 +3,14 @@
 IF OBJECT_ID('@target_database_schema.@table_name', 'U') IS NOT NULL
 DROP TABLE @target_database_schema.@table_name;
 
-IF OBJECT_ID('@target_database_schema.addresses_geocoded', 'U') IS NOT NULL
-DROP TABLE @target_database_schema.addresses_geocoded;
-
-CREATE TABLE @target_database_schema.addresses_geocoded
-(
-location_id INT,
-FIPS VARCHAR(12),
-COUNTY_NAME VARCHAR(100),
-STATE_NAME VARCHAR(100)
-);
+IF OBJECT_ID('@target_database_schema.addresses_geocoded', 'U') IS NULL
+BEGIN CREATE TABLE @target_database_schema.addresses_geocoded (
+        location_id INT,
+        FIPS VARCHAR(12),
+        COUNTY_NAME VARCHAR(100),
+        STATE_NAME VARCHAR(100)
+    )
+END;
 
 --- The following query generates the addresses_geocoded table from GIS postgres database @geomdb using geocoding tool https://github.com/OHDSI/GIS. It needs to be loaded into @target_database_schema.addresses_geocoded. 
 /*
@@ -50,7 +48,7 @@ ADI_NATRANK VARCHAR(20)
 
 INSERT INTO @target_database_schema.@table_name
 SELECT
-  cc.person_id,
+  p.person_id,
   l.location_id,
   cc.cohort_definition_id,
   adi.FIPS AS FIPS,
@@ -59,13 +57,13 @@ SELECT
   adi.ADI_STATERNK,
   adi.ADI_NATRANK
 FROM
-  @target_database_schema.@cohort_table AS cc --need a table with person_id and location_id
+  @target_database_schema.@cohort_table AS cc
 INNER JOIN
-  @target_database_schema.person AS p
+  @cdm_database_schema.person AS p
 ON 
   cc.subject_id = p.person_id
 INNER JOIN
-  @target_database_schema.location as l
+  @cdm_database_schema.location as l
 ON 
   p.location_id = l.location_id
 INNER JOIN

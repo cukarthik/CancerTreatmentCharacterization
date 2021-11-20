@@ -48,6 +48,7 @@
 #' @param synthesizePositiveControls  Should positive controls be synthesized?
 #' @param runAnalyses          Perform the cohort method analyses?
 #' @param runDiagnostics       Compute study diagnostics?
+#' @param runADIAnalysis       Is your location data geocoded available to run ADI?
 #' @param packageResults       Should results be packaged for later sharing?     
 #' @param maxCores             How many parallel cores should be used? If more cores are made available
 #'                             this can speed up the analyses.
@@ -99,7 +100,7 @@ execute <- function(connectionDetails,
   cohortTable <- "cancer_cohorts"
   package <- "CancerTreatmentCharacterization"
   ParallelLogger::logInfo("Initializing Study")
-  initializeStudy(outputFolder, connection, cohortDatabaseSchema, oracleTempSchema, package, reloadData)
+  initializeStudy(outputFolder, connection, cohortDatabaseSchema, oracleTempSchema, package, reloadData, runADIAnalysis)
 
   on.exit(ParallelLogger::unregisterLogger("DEFAULT_FILE_LOGGER", silent = TRUE))
   on.exit(ParallelLogger::unregisterLogger("DEFAULT_ERRORREPORT_LOGGER", silent = TRUE), add = TRUE)
@@ -248,7 +249,7 @@ execute <- function(connectionDetails,
     
     if (runADIAnalysis) {
       ParallelLogger::logInfo("Run ADI Analysis to get County level patient counts and median ADI")
-      CohortADIAnalysis(connection, cohortDatabaseSchema, cohortTable, outputFolder, minCellCount = 10)
+      CohortADIAnalysis(connection, cohortDatabaseSchema, cdmDatabaseSchema, cohortTable, outputFolder, minCellCount = 10)
     }
 
     if (packageResults) {
@@ -267,12 +268,11 @@ execute <- function(connectionDetails,
 }
 
 # This function initializes all parameters, creates necessary folders, and loading data to the database for the study
-initializeStudy <- function(outputFolder, connection, cohortDatabaseSchema, oracleTempSchema, package, reloadData = TRUE) {
+initializeStudy <- function(outputFolder, connection, cohortDatabaseSchema, oracleTempSchema, package, reloadData = TRUE, runADIAnalysis = TRUE) {
   if (!file.exists(outputFolder))
     dir.create(outputFolder, recursive = TRUE)
   ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
   ParallelLogger::addDefaultErrorReportLogger(file.path(outputFolder, "errorReportR.txt"))
-
   if (reloadData) {
     if(runADIAnalysis){ 
     #Load ADI data
@@ -311,7 +311,12 @@ createAndLoadFileToTable <- function(pathToCsv, sep = ",", connection, cohortDat
 
 
   #Load data from csv file
-  data <- read.csv(file = pathToCsv, sep = sep)
+  if(tableName == "adi_data"){
+    data <- read.csv(file = pathToCsv, sep = sep, colClasses = c('character'))
+  }
+  else{
+    data <- read.csv(file = pathToCsv, sep = sep)
+  }
   #Construct the values to insert
   # paste0(apply(head(data), 1, function(x) paste0("('", paste0(x, collapse = "', '"), "')")), collapse = ", ")
   #batch load the rows
@@ -332,7 +337,12 @@ createAndLoadFileToTable <- function(pathToCsv, sep = ",", connection, cohortDat
         # v1 <- apply(i, 1, function(x) ifelse(is.na(strtoi(x)), paste0("'", x,"'"), paste0(x)))
         # v2 <- apply(v1, 2, function(x) paste(x, collapse = ", "))
         # values <- paste0("(", v2, ")", collapse=",")
-        values <- paste0("(", apply(apply(i, 1, function(x) ifelse(is.na(strtoi(x)), paste0("'", x,"'"), paste0(x))), 2, function(x) paste(x, collapse = ", ")), ")", collapse=",")
+        if (tableName == 'adi_data'){
+          values <- paste0("(", apply(apply(i, 1, function(x) paste0("'", x, "'")), 2, function(x) paste0(x, collapse = ", ")), ")", collapse=",")
+        }
+        else{
+          values <- paste0("(", apply(apply(i, 1, function(x) ifelse(is.na(strtoi(x)), paste0("'", x,"'"), paste0(x))), 2, function(x) paste(x, collapse = ", ")), ")", collapse=",")
+        }
       # }
 
     # }

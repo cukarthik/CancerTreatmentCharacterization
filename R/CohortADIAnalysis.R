@@ -24,6 +24,9 @@
 #' @param cohortDatabaseSchema Schema name where intermediate data can be stored. You will need to have
 #'                             write priviliges in this schema. Note that for SQL Server, this should
 #'                             include both the database and schema name, for example 'cdm_data.dbo'.
+#' @param cdmDatabaseSchema    Schema name where your patient-level data in OMOP CDM format resides.
+#'                             Note that for SQL Server, this should include both the database and
+#'                             schema name, for example 'cdm_data.dbo'.
 #' @param cohortTable          The name of the table that will be created in the work database schema.
 #'                             This table will hold the exposure and outcome cohorts used in this
 #'                             study.
@@ -36,21 +39,38 @@
 #' @export
 
 #Run the patient count and median ADI for each County. Any value less than minCellCount limit will be returned as a label. 
-CohortADIAnalysis <- function(connection, cohortDatabaseSchema, cohortTable, outputFolder, minCellCount=10){
+CohortADIAnalysis <- function(connection, cohortDatabaseSchema, cdmDatabaseSchema, cohortTable, outputFolder, minCellCount=10){
   ParallelLogger::logInfo(paste("Extracting Geometry and ADI Data"))
   geom_table <- 'location_geocode_bg_adi'
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = 'ExtractGeomBG.sql',
                                        packageName = package,
                                        dbms = attr(connection, "dbms"),
                                        target_database_schema = cohortDatabaseSchema,
-                                       cohort_table = cohortTable)
+                                       cdm_database_schema = cdmDatabaseSchema,
+                                       cohort_table = cohortTable,
+                                       adi_data = 'adi_data')
   DatabaseConnector::executeSql(connection, sql)
-  adi_county_sql <- "SELECT cohort_definition_id, COUNTY_NAME, CASE WHEN COUNT(DISTINCT person_id) > @minCellCount THEN COUNT(DISTINCT person_id) ELSE CONCAT('<=', STR(@minCellCount)) END AS person_count, MEDIAN(ADI_STATERNK) AS median_adi FROM @cohort_database_schema.@table_name GROUP BY cohort_definition_id, COUNTY_NAME"
-  adi_county_sql <- SqlRender::render(adi_county_sql,
+  adi_county_count_sql <- "SELECT cohort_definition_id, COUNTY_NAME, STATE_NAME, CASE WHEN COUNT(DISTINCT person_id) > @minCellCount THEN STR(COUNT(DISTINCT person_id)) ELSE CONCAT('<=', STR(@minCellCount)) END AS person_count 
+  FROM @cohort_database_schema.@table_name GROUP BY cohort_definition_id, STATE_NAME, COUNTY_NAME"
+  adi_county_count_sql <- SqlRender::render(adi_county_count_sql,
                                       minCellCount = minCellCount,
                            cohort_database_schema = cohortDatabaseSchema,
                            table_name = geom_table)
-  adi_county_sql <- SqlRender::translate(adi_county_sql, targetDialect = attr(connection, "dbms"))
-  adi_county_result <- DatabaseConnector::querySql(connection, adi_county_sql)
-  write.csv(adi_county_result, file.path(outputFolder, "ADICountyResult.csv"))
+  adi_county_count_sql <- SqlRender::translate(adi_county_count_sql, targetDialect = attr(connection, "dbms"))
+  adi_county_count_result <- DatabaseConnector::querySql(connection, adi_county_count_sql)
+  adi_county_count_result$PERSON_COUNT <- as.character(adi_county_count_result$PERSON_COUNT)
+  
+  adi_county_median_sql <- "SELECT cohort_definition_id, COUNTY_NAME, STATE_NAME, person_id, ADI_STATERNK FROM @cohort_database_schema.@table_name"
+  adi_county_median_sql <- SqlRender::render(adi_county_median_sql,
+                                            cohort_database_schema = cohortDatabaseSchema,
+                                            table_name = geom_table)
+  adi_county_median_sql <- SqlRender::translate(adi_county_median_sql, targetDialect = attr(connection, "dbms"))
+  adi_county_median_result <- DatabaseConnector::querySql(connection, adi_county_median_sql)
+  adi_county_median_result <- adi_county_median_result[!is.na(as.numeric(as.character(adi_county_median_result$ADI_STATERNK))),]
+  
+  #adi_county_median_result <- adi_county_median_result[Reduce(`&`, lapply(adi_county_median_result$ADI_STATERNK, function(x) !is.na(as.numeric(as.character(x))))),]
+  adi_county_median_result <- adi_county_median_result %>% group_by(COHORT_DEFINITION_ID, STATE_NAME, COUNTY_NAME) %>% mutate(Median_ADI=median(ADI_STATERNK))
+  
+  write.csv(adi_county_count_result, file.path(outputFolder, "ADICountyCountResult.csv"))
+  write.csv(adi_county_median_result, file.path(outputFolder, "ADICountyMedianADIResult.csv"))
 }
