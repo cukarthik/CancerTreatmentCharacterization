@@ -148,6 +148,7 @@ Run Study
             runOhdsiCharacterization = TRUE,          #This flag runs the OHDSI characterization package on the cohorts to get a Table1.
             runTreatmentAnalysis = TRUE,              #This flag is the main analysis that characterizes treatment variation
             runDiagnostics = FALSE,                   #This flag runs OHDSI's CohortDiagnostics on the cohorts created
+	    runADIAnalysis = FALSE,                   #This flag run ADI analysis. NOTE: only set this to true if your database has geocoded data
             packageResults = FALSE,
             renderMarkdown = TRUE,                    #This flag runs the treatment analysis within a RMarkdown script for each cancer and outputs the html version of the executed RMarkdown file. 
                                                       # If the variable is set to FALSE, then it executes a regular R script
