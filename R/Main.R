@@ -288,8 +288,8 @@ initializeStudy <- function(outputFolder, connection, cohortDatabaseSchema, orac
 
     #Remove Adrenal Glucocorticoid from CanMed table b/c it creates too much noise in the analysis
     sql <- paste0("DELETE FROM @target_database_schema.@table_name WHERE major_class='Adrenal Glucocorticoid'")
-    renderedSql <- render(sql = sql, target_database_schema = cohortDatabaseSchema, table_name = "can_med")
-    deleteSql <- translate(renderedSql, targetDialect = attr(connection, "dbms"))
+    renderedSql <- SqlRender::render(sql = sql, target_database_schema = cohortDatabaseSchema, table_name = "can_med")
+    deleteSql <- SqlRender::translate(renderedSql, targetDialect = attr(connection, "dbms"))
     DatabaseConnector::executeSql(connection, deleteSql)
 
     #Load Routes for Select Ingredients
@@ -347,8 +347,8 @@ createAndLoadFileToTable <- function(pathToCsv, sep = ",", connection, cohortDat
 
     # }
     sql <- paste0("INSERT INTO @target_database_schema.@table_name VALUES ", values, ";")
-    renderedSql <- render(sql = sql, target_database_schema = cohortDatabaseSchema, table_name = tableName)
-    insertSql <- translate(renderedSql, targetDialect = targetDialect)
+    renderedSql <- SqlRender::render(sql = sql, target_database_schema = cohortDatabaseSchema, table_name = tableName)
+    insertSql <- SqlRender::translate(renderedSql, targetDialect = targetDialect)
     DatabaseConnector::executeSql(connection, insertSql)
   }
 }

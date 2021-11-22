@@ -251,7 +251,7 @@ plot
 ```
 
 ```{r message=FALSE, warning=FALSE}
-#neoadjuvant VEGF positive_drugs
+#neoadjuvant EGFR positive_drugs
 neoadjuvant_vegf_records <- cancerCohortDataTable %>%
   filter(neoadjuvant == '1', generic_drug_name %in% cancerSpecificVectors$EGFR_positive_drugs) %>%
   distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%

@@ -127,7 +127,6 @@ runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortI
 }
 
 #' counting intervention types by year
-#' @export
 examineInterventionsPerYear <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
    distinct_breast_interventions <- cancerCohortDataTable %>%
                                  distinct(person_id, dx_year, distinct_interventions, age_group)

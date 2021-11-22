@@ -57,7 +57,7 @@ CREATE TABLE @target_database_schema.temp_nci_cancer_treatments
     quantity FLOAT,
     dose_unit_source_value varchar(50),
     drug_source_value varchar(500)
-)
+);
 
 ------------------------------
 -----CODE LIST PREPARATION----
@@ -162,7 +162,7 @@ SELECT subject_id           as person_id,
        'NULL'               as minor_class,
        procedure_concept_id as concept_id,
        procedure_name       as concept_name,
-       '01/01/2099'         as approval_year,
+       CAST('2099-01-01' as date)  as approval_year,
        99                   as first_in_class,
        -1                   as quantity,
        'NULL'               as dose_unit_source_value,
@@ -211,7 +211,7 @@ SELECT distinct subject_id                 as person_id,
                 'NULL'                     as minor_class,
                 device_concept_id          as concept_id,
                 concept_name,
-                '01/01/2099'               as approval_year,
+                CAST('2099-01-01' as date) as approval_year,
                 99                         as first_in_class,
                 -1                         as quantity,
                 'NULL'                     as dose_unit_source_value,
@@ -305,6 +305,7 @@ select *
 into #NCI_Cancer
 from #ingredient_type
 order by person_id, intervention_date
+;
 
 -- select *
 -- from #NCI_Cancer
@@ -400,8 +401,8 @@ select distinct de.*,
                 YEAR(cohort_start_date)                                          as dx_year
 --              , d.route_concept_id, c3.concept_name as route_name, d.drug_source_value AS d_drug_source_value
 into @target_database_schema.@target_cohort_dataset_name
-FROM #dataset de (nolock)
-LEFT JOIN @cdm_database_schema.drug_exposure d (nolock) on de.concept_id= d.drug_concept_id
+FROM #dataset de 
+LEFT JOIN @cdm_database_schema.drug_exposure d  on de.concept_id= d.drug_concept_id
     AND de.person_id=d.person_id
     AND de.intervention_date= d.drug_exposure_start_date
 LEFT JOIN @vocabulary_database_schema.concept_relationship cr on de.concept_id = cr.concept_id_1
@@ -410,7 +411,7 @@ LEFT JOIN @vocabulary_database_schema.concept_relationship cr on de.concept_id =
 LEFT JOIN @vocabulary_database_schema.concept c2 on cr.concept_id_2 = c2.concept_id
 LEFT JOIN @vocabulary_database_schema.concept c3 on d.route_concept_id = c3.concept_id
 LEFT JOIN @target_database_schema.@ingredient_routes_table r on r.concept_id = d.drug_concept_id
-
+;
 
 IF OBJECT_ID('@target_database_schema.temp_nci_cancer_treatments', 'U') IS NOT NULL
     DROP TABLE @target_database_schema.temp_nci_cancer_treatments;
