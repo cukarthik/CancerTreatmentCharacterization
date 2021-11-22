@@ -60,7 +60,7 @@ getMarkdownAnalysisFileName <- function(cohortId) {
   else if (cohortId == 1775947)
     return(list(file = "../rmd/AnalysisMarkdown-ProstateCancer.Rmd", cancerName = "Prostate Cancer"))
   else if (cohortId == 1775948)
-    return(list(file = "../rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Multiple Myeloma"))
+    return(list(file = "../rmd/AnalysisMarkdown-MultipleMyeloma.Rmd", cancerName = "Multiple Myeloma"))
   else if (cohortId == 1775949)
     return(list(file = "../rmd/AnalysisMarkdown-LungCancer.Rmd", cancerName = "Lung Cancer"))
   else if (cohortId == 1775950)
@@ -98,8 +98,7 @@ getVectorsForSpecificCancer <- function(cohortId) {
     all_breast_antineoplastics <- c(HR_positive_drugs, HER2_positive_drugs, chemo_drugs)
     return(list(interventions=interventions, hr_positive_drugs=HR_positive_drugs, her2_positive_drugs=HER2_positive_drugs,
          chemo_drugs=chemo_drugs, drugs_vector=all_breast_antineoplastics))
-  }
-  else if (cohortId == 1775947) {
+  }  else if (cohortId == 1775947) {
     #local interventions
     interventions <- c('Prostatectomy', 'Radiotherapy', 'Cryoablation', 'HIFU')
 
@@ -110,6 +109,23 @@ getVectorsForSpecificCancer <- function(cohortId) {
     targeted_drugs <- c('Radium-223', 'Olaparib', 'Rucaparib') #inhibitory mechanisms
     return(list(interventions=interventions, endocrine_drugs=endocrine_drugs, immuno_drugs=immuno_drugs,
          chemo_drugs=chemo_drugs, targeted_drugs=targeted_drugs, drugs_vector=c(endocrine_drugs, chemo_drugs, immuno_drugs, targeted_drugs)))
+  }  else if (cohortId == 1775948) {
+    #local interventions
+    interventions <- c('Allogeneic Stem Cell Transplantation', 'Autologous Stem Cell Transplantation')
+
+    #drug vectors
+    proteasome_inhibitors <- c('Bortezomib', 'carfilzomib', 'Ixazomib')
+    IMiDs <- c('Lenalidomide', 'Pomalidomide', 'Thalidomide')
+    CarT <- c('Idecabtagene vicleucel')
+    chemo_drugs <- c('Doxorubicin', 'Melphalan', 'Cyclophosphamide', 'Etoposide', 'Bendamustine', 'Vincristine', 'Dexamethasone')
+    mAbs <- c('Daratumumab', 'Isatuximab', 'Elotuzumab')
+
+    #standard regimens
+    RVD <- c('bortezomib', 'lenalidomide', 'dexamethasone')
+
+    all_myeloma_antineoplastics <- c(proteasome_inhibitors, IMiDs, CarT, chemo_drugs, mAbs)
+    return(list(interventions=interventions, proteasome_inhibitors=proteasome_inhibitors, IMiDs=IMiDs, CarT=CarT,
+         chemo_drugs=chemo_drugs, mAbs=mAbs, RVD=RVD, drugs_vector=all_myeloma_antineoplastics))
   } else if (cohortId == 1775949) {
     interventions <- c("Total Lobectomy", "Radiotherapy", "Wedge Resection", "Lobectomy", "Pneumonectomy")
 

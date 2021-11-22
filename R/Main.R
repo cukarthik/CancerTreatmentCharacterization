@@ -197,7 +197,7 @@ execute <- function(connectionDetails,
           datasetName <- getCancerDataSetName(cohortId = filterCohorts$cohortDefinitionId[i])
 
         if (runTreatmentAnalysis) {
-          if (filterCohorts$cohortDefinitionId[i] %in%  c(1775946, 1775947, 1775949)) {
+          if (filterCohorts$cohortDefinitionId[i] %in%  c(1775946, 1775947, 1775948, 1775949)) {
             ParallelLogger::logInfo(paste("Running Cohort Treatment Characterization for", filterCohorts$cohortName[i]))
             if (renderMarkdown) {
               mardownFile <- getMarkdownAnalysisFileName(filterCohorts$cohortDefinitionId[i])
