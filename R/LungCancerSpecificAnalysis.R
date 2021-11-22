@@ -27,33 +27,6 @@ prostateCancerSpecificAnalysis <- function(cohortName, cancerCohortDataTable, ca
     filter(drug_sequence == 1) %>%
     arrange(intervention_date)
 
-  #plot 5
-  #creating a table of just tamoxifen and anastrozole
-  # ParallelLogger::logInfo(paste("Creating plot of tamoxifen and anastrozole for", cohortName))
-  # tamoxifenVsAnastrozoleAnalysis(first_drug_record, outputFolder, minCellCount)
-
-  #plot 6
-  #plotting histogram of all first drugs given to breast cancer pts
-  # ParallelLogger::logInfo(paste("Creating plot of first drugs given for", cohortName))
-  # examineFirstDrugRecord(first_drug_record, outputFolder, minCellCount)
-
-  #plot 7
-  #same as plot 4 but stratified by ingredient type
-  #number of anti-neoplastic drugs approved by FDA, by year
-  #number of distinct 'cancer fighting' drugs administered per year -- this excludes all glucocorticoids and aspirin
-  # ParallelLogger::logInfo(paste("Creating plot of 'cancer fighting' drugs administered per year for", cohortName))
-  # examineTumorVsChemoTreatment(cancerCohortDataTable, outputFolder, FDA_drug_approvals)
-
-  ######for plot 9, would be more useful to note which neoadjuvant therapies are being used (so something like plot 11)#############
-  #plot 9
-  # ParallelLogger::logInfo(paste("Creating plot of neoadjuvant therapies for", cohortName))
-  # examineNeoadjuvantPercentages(cancerCohortDataTable, outputFolder, minCellCount)
-
-  #plot 10
-  #looking at the variation in drugs for patients who received just systemic treatment
-  # ParallelLogger::logInfo(paste("Creating plot of first line therapies for advanced stage cancers for", cohortName))
-  # examineFirstLineTherapyForAdvancedStageCancer(cancerCohortDataTable, outputFolder, patient_interventions)
-
   ParallelLogger::logInfo(paste("Creating plot of intervention types by year SINCE 2000 for", cohortName))
   examineInterventionsPerYear(cancerCohortDataTable %>% filter(dx_year >= 2000), cohortName, databaseId, outputFolder, minCellCount)
 

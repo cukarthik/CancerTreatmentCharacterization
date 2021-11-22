@@ -152,7 +152,7 @@ adjuvant_chemo_records <- cancerCohortDataTable %>%
 
 ```{r message=FALSE, warning=FALSE}
 # proteasome inhibitors irrespective of transplantation
-adjuvant_checkpoint_records <- cancerCohortDataTable %>%
+adjuvant_proteasome_inhibitors_records <- cancerCohortDataTable %>%
   filter(generic_drug_name %in% cancerSpecificVectors$proteasome_inhibitors) %>%
   distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
   arrange(dx_year, person_id, intervention_date) %>%
@@ -163,14 +163,14 @@ adjuvant_checkpoint_records <- cancerCohortDataTable %>%
 #plot the data
 title <- "Percent Distribution of First Proteasome Inhibitor Administered, by Year"
 file <- "percent_of_distribution_first_proteasome_inhibitor"
-plot <- createPercentPlotForTherapy(adjuvant_checkpoint_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot <- createPercentPlotForTherapy(adjuvant_proteasome_inhibitors_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
 plot
 
 ```
 
 ```{r message=FALSE, warning=FALSE}
 # IMiDs
-adjuvant_checkpoint_records <- cancerCohortDataTable %>%
+adjuvant_IMiDs_records <- cancerCohortDataTable %>%
   filter(generic_drug_name %in% cancerSpecificVectors$IMiDs) %>%
   distinct(person_id, dx_year, generic_drug_name, intervention_date) %>%
   arrange(dx_year, person_id, intervention_date) %>%
@@ -181,7 +181,7 @@ adjuvant_checkpoint_records <- cancerCohortDataTable %>%
 #plot the data
 title <- "Percent Distribution of First IMiD Administered, by Year"
 file <- "percent_of_distribution_first_IMiD"
-plot <- createPercentPlotForTherapy(adjuvant_checkpoint_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
+plot <- createPercentPlotForTherapy(adjuvant_IMiDs_records, title, file, cohortName, databaseId, minCellCount, outputFolder)
 plot
 
 ```
