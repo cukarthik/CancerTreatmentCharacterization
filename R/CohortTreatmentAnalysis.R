@@ -126,12 +126,8 @@ runCancerTreatmentAnalysis <- function(connection, cohortDatabaseSchema, cohortI
   #   lungCancerSpecificAnalysis(cohortName, cancerCohortDataTable, FDA_drug_approvals, patient_interventions, outputFolder, minCellCount)
 }
 
-<<<<<<< HEAD
 #' counting intervention types by year
 #' @export
-=======
-#counting intervention types by year
->>>>>>> bq_fix
 examineInterventionsPerYear <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
    distinct_breast_interventions <- cancerCohortDataTable %>%
                                  distinct(person_id, dx_year, distinct_interventions, age_group)
@@ -170,12 +166,8 @@ examineInterventionsPerYear <- function(cancerCohortDataTable, cohortName, datab
   return(z)
 }
 
-<<<<<<< HEAD
 #' counting distinct diagnoses by year
 #' @export
-=======
-#counting distinct diagnoses by year
->>>>>>> bq_fix
 examineDxPerYear <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   #plot 1
   Number_of_Dx_per_year <- cancerCohortDataTable %>%
@@ -190,12 +182,8 @@ examineDxPerYear <- function(cancerCohortDataTable, cohortName, databaseId, outp
   return(z)
 }
 
-<<<<<<< HEAD
 #' average age at diagnosis by year
 #' @export
-=======
-#average age at diagnosis by year
->>>>>>> bq_fix
 examineAvgAgeAtDx <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   #plot 2
   avg_age_at_dx <- cancerCohortDataTable %>%
@@ -211,12 +199,8 @@ examineAvgAgeAtDx <- function(cancerCohortDataTable, cohortName, databaseId, out
   return(x)
 }
 
-<<<<<<< HEAD
 #' percent distribution of Ages at Diagnosis
 #' @export
-=======
-#percent distribution of Ages at Diagnosis
->>>>>>> bq_fix
 examinePercentAgeAtDx <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   age_group_at_dx <- cancerCohortDataTable %>%
     distinct(person_id, dx_year, age_group) %>%
@@ -248,10 +232,7 @@ examinePercentAgeAtDx <- function(cancerCohortDataTable, cohortName, databaseId,
   return(x)
 }
 
-<<<<<<< HEAD
 #' @export
-=======
->>>>>>> bq_fix
 examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   #average number of drugs, by cohort year
   #plus average number of distinct major class drugs, by cohort year
@@ -402,10 +383,7 @@ examineAvgNumDrugsByTreatmentClass <- function(cancerCohortDataTable, cohortName
 #   return(x)
 # }
 
-<<<<<<< HEAD
 #' @export
-=======
->>>>>>> bq_fix
 examineFirstDrugRecord <- function(first_drug_record, cohortName, databaseId, outputFolder, minCellCount) {
   first_drug_record_counts <- first_drug_record %>%
     ungroup(person_id) %>%
@@ -422,10 +400,7 @@ examineFirstDrugRecord <- function(first_drug_record, cohortName, databaseId, ou
   return(x)
 }
 
-<<<<<<< HEAD
 #' @export
-=======
->>>>>>> bq_fix
 examineTumorVsChemoTreatment <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, FDA_drug_approvals) {
   #number of anti-neoplastic drugs approved by FDA, by year
 
@@ -453,10 +428,7 @@ examineTumorVsChemoTreatment <- function(cancerCohortDataTable, cohortName, data
   return(x)
 }
 
-<<<<<<< HEAD
 #' @export
-=======
->>>>>>> bq_fix
 examineNeoadjuvantPercentages <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   #creating denom values for subsequent JOIN
   #you need the ungroup() function if you want to drop a variable that was used in a preceding group_by() function; ie, neoadjuvant in this ex
@@ -480,10 +452,7 @@ examineNeoadjuvantPercentages <- function(cancerCohortDataTable, cohortName, dat
   return(x)
 }
 
-<<<<<<< HEAD
 #' @export
-=======
->>>>>>> bq_fix
 examineFirstLineTherapyForAdvancedStageCancer <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   metastatic_drug_records <- cancerCohortDataTable %>%
     filter(distinct_interventions == 'Drug', ingredient_type == 'Cancer-fighting', major_class != 'Adrenal Glucocorticoid', generic_drug_name != 'aspirin') %>%
@@ -539,10 +508,7 @@ examineFirstLineTherapyForAdvancedStageCancer <- function(cancerCohortDataTable,
   return(x)
 }
 
-<<<<<<< HEAD
 #' @export
-=======
->>>>>>> bq_fix
 examinePercentEndocrineForAdjuvantTherapy <- function(adjuvant_endrocrine_records, cohortName, databaseId, outputFolder, minCellCount) {
   # plot 11a
   #calculating the percent of patients who receive adjuvant Endocrine therapy, by year
@@ -569,10 +535,7 @@ examinePercentEndocrineForAdjuvantTherapy <- function(adjuvant_endrocrine_record
   return(x)
 }
 
-<<<<<<< HEAD
 #' @export
-=======
->>>>>>> bq_fix
 examinePercentEndocrineForNeoAdjuvantTherapy <- function(neoadjuvant_endrocrine_records, cohortName, databaseId, outputFolder, minCellCount) {
   # plot 11a - 2
   title <- "Percent distribution of first line monotherapy endocrine therapy in the neoadjuvant setting, by year"
@@ -581,12 +544,8 @@ examinePercentEndocrineForNeoAdjuvantTherapy <- function(neoadjuvant_endrocrine_
   return(x)
 }
 
-<<<<<<< HEAD
 #' selecting for patients who are labeled as having adjuvant chemotherapy or immunotherapy records
 #' @export
-=======
-#selecting for patients who are labeled as having adjuvant chemotherapy or immunotherapy records
->>>>>>> bq_fix
 examinePercentChemoForAdjuvantTherapy <- function(adjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount) {
   # adjuvant_chemo_records <- cancerCohortDataTable %>%
   #   filter(neoadjuvant == '0', rx_category == 'Chemotherapy') %>%
@@ -602,12 +561,8 @@ examinePercentChemoForAdjuvantTherapy <- function(adjuvant_chemo_records, cohort
   return(x)
 }
 
-<<<<<<< HEAD
 #' selecting for patients who are labeled as having NEOadjuvant chemotherapy
 #' @export
-=======
-#selecting for patients who are labeled as having NEOadjuvant chemotherapy
->>>>>>> bq_fix
 examinePercentChemoForNeoAdjuvantTherapy <- function(neoadjuvant_chemo_records, cohortName, databaseId, outputFolder, minCellCount) {
   # neoadjuvant_chemo_records <- cancerCohortDataTable %>%
   #   filter(neoadjuvant == '1', rx_category == 'Chemotherapy') %>%
@@ -623,12 +578,8 @@ examinePercentChemoForNeoAdjuvantTherapy <- function(neoadjuvant_chemo_records, 
   return(x)
 }
 
-<<<<<<< HEAD
 #' generic function that plots the percentage of a therapy (i.e. chemo, immno, etc) by year
 #' @export
-=======
-#generic function that plots the percentage of a therapy (i.e. chemo, immno, etc) by year
->>>>>>> bq_fix
 createPercentPlotForTherapy <- function(specific_therapy_records, title, file, cohortName, databaseId, minCellCount, outputFolder) {
   #first subsetting the data to get the highest two counts per year
   first_line_therapy_counts_by_year <- specific_therapy_records %>%
@@ -686,12 +637,8 @@ createPercentPlotForTherapy <- function(specific_therapy_records, title, file, c
 #   return(x)
 # }
 
-<<<<<<< HEAD
 #' distribution of classes of antineoplastics over time
 #' @export
-=======
-#distribution of classes of antineoplastics over time
->>>>>>> bq_fix
 examineAntineoplasticsOverTime <- function(cancerCohortDataTable, cohortName, databaseId, outputFolder, minCellCount) {
   classes_pp <- cancerCohortDataTable %>%
     filter(ingredient_type == 'Cancer-fighting', major_class != 'Adrenal Glucocorticoid', generic_drug_name != 'aspirin') %>%
@@ -723,12 +670,8 @@ examineAntineoplasticsOverTime <- function(cancerCohortDataTable, cohortName, da
   return(x)
 }
 
-<<<<<<< HEAD
 #' percent distribution of antiher2 over time
 #' @export
-=======
-#percent distribution of antiher2 over time
->>>>>>> bq_fix
 examineAntiHER2AdjuvantTherapy <- function(adjuvant_antiher2_records, cohortName, databaseId, outputFolder, minCellCount) {
 
   #plot the data
@@ -738,12 +681,8 @@ examineAntiHER2AdjuvantTherapy <- function(adjuvant_antiher2_records, cohortName
   return(x)
 }
 
-<<<<<<< HEAD
 #' percent distribution of antiher2 over time
 #' @export
-=======
-#percent distribution of antiher2 over time
->>>>>>> bq_fix
 examineAntiHER2NeoAdjuvantTherapy <- function(neoadjuvant_antiher2_records, cohortName, databaseId, outputFolder, minCellCount) {
 
   #plot the data
@@ -753,12 +692,8 @@ examineAntiHER2NeoAdjuvantTherapy <- function(neoadjuvant_antiher2_records, coho
   return(x)
 }
 
-<<<<<<< HEAD
 #' function writes the aggregate data as well as the plot image to files
 #' @export
-=======
-#function writes the aggregate data as well as the plot image to files
->>>>>>> bq_fix
 saveAnalysis <- function(x, data = last_plot()$data[[1]], analysisFolder, fileName, cohortName, databaseId, minCellCount, fieldName = "") {
   fullFileName <- paste0(databaseId, "_", gsub(" ", "_", cohortName), "_", fileName)
   analysisPlotsFolder <- paste0(analysisFolder, "/plots")

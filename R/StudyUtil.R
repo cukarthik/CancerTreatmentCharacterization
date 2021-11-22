@@ -56,7 +56,6 @@ getConceptListSqlFileName <- function(cohortId) {
 
 getMarkdownAnalysisFileName <- function(cohortId) {
   if (cohortId == 1775946)
-<<<<<<< HEAD
     return(list(file = "../rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Breast Cancer"))
   else if (cohortId == 1775947)
     return(list(file = "../rmd/AnalysisMarkdown-ProstateCancer.Rmd", cancerName = "Prostate Cancer"))
@@ -66,17 +65,6 @@ getMarkdownAnalysisFileName <- function(cohortId) {
     return(list(file = "../rmd/AnalysisMarkdown-LungCancer.Rmd", cancerName = "Lung Cancer"))
   else if (cohortId == 1775950)
     return(list(sqlFile = "../rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Prostate Cancer Surveillance"))
-=======
-    return(list(file = system.file("rmd", "AnalysisMarkdown-BreastCancer.Rmd", package = "CancerTreatmentCharacterization") , cancerName = "Breast Cancer"))
-  else if (cohortId == 1775947)
-    return(list(file = "../inst/rmd/AnalysisMarkdown-ProstateCancer.Rmd", cancerName = "Prostate Cancer"))
-  else if (cohortId == 1775948)
-    return(list(file = "../inst/rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Multiple Myeloma"))
-  else if (cohortId == 1775949)
-    return(list(file = "../inst/rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Lung Cancer"))
-  else if (cohortId == 1775950)
-    return(list(sqlFile = "../inst/rmd/AnalysisMarkdown-BreastCancer.Rmd", cancerName = "Prostate Cancer Surveillance"))
->>>>>>> bq_fix
   else return(NULL) #this line should not execute
 }
 
