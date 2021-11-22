@@ -11,7 +11,8 @@ CREATE TABLE #procedure_codes
     procedure_concept_id   INT,
     procedure_name	       VARCHAR(255),
 	modality			   VARCHAR(100)
-)
+);
+
  -----1. RADIOTHERAPY CODES--------------
 --(this insertion into #procedure_codes looks different than the rest of the insertions b/c grabbing high level radiation code leads to observation only codes, which won't and don't help in the PO table. 
 
@@ -40,7 +41,7 @@ from @vocabulary_database_schema.concept c
                           join @vocabulary_database_schema.concept_ancestor ca on c.concept_id=ca.descendant_concept_id
                           where ca.ancestor_concept_id = 4120445 --Hemopoietic stem cell transplant
 				                  and c.concept_name like '%Autologous%'
-
+;
 
 --Allogeneic stem cell transplantation
 INSERT INTO #procedure_codes
@@ -53,7 +54,7 @@ from @vocabulary_database_schema.concept c
                           where ca.ancestor_concept_id = 4120445 --Hemopoietic stem cell transplant
 				                  and c.concept_name like '%Allogeneic%'
 						              and descendant_concept_id != 2721123  --Cord blood harvesting for transplantation, allogeneic
-
+;
 
 
 --CT Scans
