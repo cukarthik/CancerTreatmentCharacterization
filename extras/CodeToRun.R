@@ -13,6 +13,8 @@
 # install.packages("readr")
 # install.packages("sqldf")
 # install.packages("tidyr")
+# install.packages("rmarkdown")
+# install.packages("forcats")
 
 # Load the package
 library(CancerTreatmentCharacterization)

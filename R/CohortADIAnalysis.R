@@ -35,6 +35,7 @@
 #'                             performance.
 #' @param minCellCount         The minimum number of subjects contributing to a count before it can be included
 #'                             in packaged results.
+#' @param package              SQLRender packageName
 #'
 #' @export
 
@@ -67,9 +68,12 @@ CohortADIAnalysis <- function(connection, package, cohortDatabaseSchema, cdmData
   adi_county_median_sql <- SqlRender::translate(adi_county_median_sql, targetDialect = attr(connection, "dbms"))
   adi_county_median_result <- DatabaseConnector::querySql(connection, adi_county_median_sql)
   adi_county_median_result <- adi_county_median_result[!is.na(as.numeric(as.character(adi_county_median_result$ADI_STATERNK))),]
+  adi_county_median_result$ADI_STATERNK <- as.numeric(adi_county_median_result$ADI_STATERNK)
   
-  #adi_county_median_result <- adi_county_median_result[Reduce(`&`, lapply(adi_county_median_result$ADI_STATERNK, function(x) !is.na(as.numeric(as.character(x))))),]
   adi_county_median_result <- adi_county_median_result %>% group_by(COHORT_DEFINITION_ID, STATE_NAME, COUNTY_NAME) %>% mutate(Median_ADI=median(ADI_STATERNK))
+  
+  adi_county_median_result <- subset(adi_county_median_result, select = -c(PERSON_ID, ADI_STATERNK))
+  adi_county_median_result <- unique(adi_county_median_result)
   
   write.csv(adi_county_count_result, file.path(outputFolder, "ADICountyCountResult.csv"))
   write.csv(adi_county_median_result, file.path(outputFolder, "ADICountyMedianADIResult.csv"))
