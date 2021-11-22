@@ -39,7 +39,7 @@
 #' @export
 
 #Run the patient count and median ADI for each County. Any value less than minCellCount limit will be returned as a label. 
-CohortADIAnalysis <- function(connection, cohortDatabaseSchema, cdmDatabaseSchema, cohortTable, outputFolder, minCellCount=10){
+CohortADIAnalysis <- function(connection, package, cohortDatabaseSchema, cdmDatabaseSchema, cohortTable, outputFolder, minCellCount=10){
   ParallelLogger::logInfo(paste("Extracting Geometry and ADI Data"))
   geom_table <- 'location_geocode_bg_adi'
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = 'ExtractGeomBG.sql',
