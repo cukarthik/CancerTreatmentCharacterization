@@ -249,7 +249,7 @@ execute <- function(connectionDetails,
     
     if (runADIAnalysis) {
       ParallelLogger::logInfo("Run ADI Analysis to get County level patient counts and median ADI")
-      CohortADIAnalysis(connection, cohortDatabaseSchema, cdmDatabaseSchema, cohortTable, outputFolder, minCellCount = 10)
+      CohortADIAnalysis(connection, package, cohortDatabaseSchema, cdmDatabaseSchema, cohortTable, outputFolder, minCellCount = 10)
     }
 
     if (packageResults) {
