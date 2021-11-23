@@ -33,8 +33,8 @@ INSERT INTO #procedure_codes
 select distinct c.concept_id as procedure_concept_id
 , c.concept_name as procedure_name
 , 'Total Lobectomy' as modality
-from @vocabulary_database_schema.concept_ancestor ca (nolock)
-join @vocabulary_database_schema.concept c (nolock)  on ca.descendant_concept_id=c.concept_id
+from @vocabulary_database_schema.concept_ancestor ca 
+join @vocabulary_database_schema.concept c   on ca.descendant_concept_id=c.concept_id
 where ca.ancestor_concept_id in (4234745, 45887822) --'total lobectomy of lung'
 ;
 
@@ -50,8 +50,8 @@ where ca.ancestor_concept_id = 4070879  --'lobectomy of lung'
 and
       ca.descendant_concept_id not in (
           select distinct c.concept_id
-            from @vocabulary_database_schema.concept_ancestor ca (nolock)
-            join @vocabulary_database_schema.concept c (nolock)  on ca.descendant_concept_id=c.concept_id
+            from @vocabulary_database_schema.concept_ancestor ca 
+            join @vocabulary_database_schema.concept c   on ca.descendant_concept_id=c.concept_id
             where ca.ancestor_concept_id in (4234745, 45887822) --'total lobectomy of lung'
         )
 and ca.descendant_concept_id != 2721091 --excluding Donor lobectomy (lung) for transplantation, living donor
