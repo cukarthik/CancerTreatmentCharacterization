@@ -142,7 +142,8 @@ examineInterventionsPerYear <- function(cancerCohortDataTable, cohortName, datab
 
   numCancerInterventionsPerYear <- interventions_cnts %>% #cancerCohortDataTable %>%
     inner_join(interventions_year_totals, by = c('dx_year')) %>%
-    mutate(pct = round(n * 100 / year_total))
+    mutate(pct = round(n * 100 / year_total)) %>%
+    mutate(filtered_labels = replace(n, n<=minCellCount, ""))
 
   # numCancerInterventionsPerYear <- cancerInterventionsConcatenatedTotals %>%
   #   unite(distinct_interventions, 4:ncol(cancerCohortDataTable), sep = ' + ', na.rm = TRUE) %>%
@@ -156,7 +157,7 @@ examineInterventionsPerYear <- function(cancerCohortDataTable, cohortName, datab
 
   z <- ggplot2::ggplot(numCancerInterventionsPerYear, aes(fill = distinct_interventions, x = dx_year, y = pct)) +
        geom_bar(position = 'fill', stat = 'identity') +
-       geom_text(aes(label = n), position = position_fill(vjust = .5), size = 2.5) +
+       geom_text(aes(label = filtered_labels), position = position_fill(vjust = .5), size = 2.5) +
        ggtitle('Percent Distribution of Intervention Types by Year') +
        theme(legend.position = 'bottom', legend.text = element_text(size = 4), legend.key.size = unit(.25, 'cm'), legend.title = element_text(size = 6)) +
        scale_fill_manual(values = getPalette(colourCount))
@@ -213,7 +214,7 @@ examinePercentAgeAtDx <- function(cancerCohortDataTable, cohortName, databaseId,
 
   age_group_at_dx <- age_group_at_dx %>%
     inner_join(age_year_total, by = c('dx_year')) %>%
-    mutate(pct = round(n * 100 / year_total))
+      mutate(pct = round(n * 100 / year_total))
 
   colourCount =  length(unique(cancerCohortDataTable$distinct_interventions))
   getPalette = colorRampPalette(brewer.pal(26, "Set3"))
@@ -592,12 +593,13 @@ createPercentPlotForTherapy <- function(specific_therapy_records, title, file, c
 
   first_line_therapy_counts_by_year <- first_line_therapy_counts_by_year %>%
     inner_join(year_total, by = c('dx_year')) %>%
-    mutate(pct = round(n * 100 / year_total))
+    mutate(pct = round(n * 100 / year_total)) %>%
+    mutate(filtered_labels = replace(n, n<=minCellCount, ""))
 
   #plot the data
   x <- ggplot(first_line_therapy_counts_by_year, aes(fill = generic_drug_name, x = dx_year, y = pct)) +
     geom_bar(position = 'fill', stat = 'identity') +
-    geom_text(aes(label = n), position = position_fill(vjust = .5), size = 3) +
+    geom_text(aes(label = filtered_labels), position = position_fill(vjust = .5), size = 3) +
     ggtitle(title) +
     theme(plot.title = element_text(size = 12), legend.position = 'bottom',
           legend.text = element_text(size = 5), legend.key.size = unit(.5, 'cm'), #legend.key.size = unit(.25, 'cm'),
